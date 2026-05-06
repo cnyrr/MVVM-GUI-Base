@@ -5,7 +5,7 @@ using MVVM_Base.Services.Navigation.Contracts;
 namespace MVVM_Base.Services.Navigation.Internal
 {
     /// <summary>
-    /// Internal navigation primitive consumed by <see cref="INavigation"/>.
+    /// Internal navigation primitive consumed by <see cref="INavigationFacade"/>.
     /// 
     /// Owns one navigation history per registered tab. Each history is a list with a current-index
     /// pointer; back and forward move the pointer, push truncates and appends, switch changes which
@@ -13,7 +13,7 @@ namespace MVVM_Base.Services.Navigation.Internal
     /// detail ViewModels are transient and may be discarded when the user branches past them.
     /// 
     /// This interface is not visible to ViewModels. ViewModels navigate through
-    /// <see cref="INavigation"/>, which translates intents into calls on this service and
+    /// <see cref="INavigationFacade"/>, which translates intents into calls on this service and
     /// implements the recover-vs-branch decision.
     /// 
     /// All methods on this interface assume they are called on the WPF UI thread. In Debug builds,
@@ -81,7 +81,7 @@ namespace MVVM_Base.Services.Navigation.Internal
         /// first if implemented; a false result silently aborts the navigation.
         /// </summary>
         Task NavigateToAsync<TViewModel, TParameters>(TParameters parameters)
-            where TViewModel : ObservableObject where TParameters : notnull;
+            where TViewModel : ObservableObject where TParameters : notnull, IEquatable<TParameters>;
 
         /// <summary>
         /// Moves the active tab's current index back by one. The previous frame's ViewModel becomes

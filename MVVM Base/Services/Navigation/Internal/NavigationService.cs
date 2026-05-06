@@ -115,7 +115,7 @@ namespace MVVM_Base.Services.Navigation.Internal
         // ===== Operations =====
 
         public async Task NavigateToAsync<TViewModel, TParameters>(TParameters parameters)
-            where TViewModel : ObservableObject
+            where TViewModel : ObservableObject where TParameters : notnull, IEquatable<TParameters>
         {
             AssertUiThread();
             EnsureBootstrapped();

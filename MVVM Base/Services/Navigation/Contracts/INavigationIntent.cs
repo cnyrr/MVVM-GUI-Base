@@ -31,8 +31,13 @@ namespace MVVM_Base.Services.Navigation.Contracts
     /// <see cref="INavigationAware{TParameters}.OnNavigatedToAsync"/> on ViewModels that implement
     /// it; ignored otherwise.
     /// </typeparam>
+    /// 
+    /// The framework's recover-vs-branch decision uses value equality on parameters, so the
+    /// <typeparamref name = "TParameters" /> type must implement<see cref="IEquatable{T}"/>. C# records 
+    /// satisfy this automatically and are the intended pattern. 
+
     public interface INavigationIntent<TViewModel, TParameters>
-        where TViewModel : ObservableObject where TParameters : notnull
+        where TViewModel : ObservableObject where TParameters : notnull, IEquatable<TParameters>
     {
         /// <summary>
         /// Produces the parameter value carried by this navigation.

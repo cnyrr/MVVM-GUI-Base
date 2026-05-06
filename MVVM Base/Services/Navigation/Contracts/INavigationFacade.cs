@@ -21,7 +21,7 @@ namespace MVVM_Base.Services.Navigation.Contracts
     /// All methods assume they are called on the WPF UI thread. Background callers must marshal
     /// to the dispatcher before invoking.
     /// </summary>
-    public interface INavigation : INotifyPropertyChanged
+    public interface INavigationFacade : INotifyPropertyChanged
     {
         // ===== State (read-only, change-notified via INotifyPropertyChanged) =====
 
@@ -63,7 +63,7 @@ namespace MVVM_Base.Services.Navigation.Contracts
         /// </summary>
         Task NavigateAsync<TViewModel, TParameters>(
             INavigationIntent<TViewModel, TParameters> intent)
-            where TViewModel : ObservableObject;
+            where TViewModel : ObservableObject where TParameters : notnull, IEquatable<TParameters>;
 
         /// <summary>
         /// Moves the active tab's history pointer back by one. Throws if <see cref="CanGoBack"/>
