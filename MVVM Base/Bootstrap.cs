@@ -89,8 +89,9 @@ namespace MVVM_Base
             // ---- ViewModels ----
             // Tab root VMs are singletons (per the architecture).
             services.AddSingleton<TestRootViewModel>();
-            // Detail VMs (transient) get registered alongside their root as the app grows:
-            //   services.AddTransient<SomeDetailViewModel>();
+            // Detail VMs are transient.
+            services.AddTransient<Test1ViewModel>();
+            services.AddTransient<Test2ViewModel>();
 
             // ---- Shell ----
             services.AddSingleton<ShellViewModel>();

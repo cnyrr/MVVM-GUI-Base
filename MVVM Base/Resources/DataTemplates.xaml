@@ -17,4 +17,12 @@
         <tviews:TestRootView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type tvm:Test1ViewModel}">
+        <tviews:Test1View />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type tvm:Test2ViewModel}">
+        <tviews:Test2View />
+    </DataTemplate>
+
 </ResourceDictionary>
