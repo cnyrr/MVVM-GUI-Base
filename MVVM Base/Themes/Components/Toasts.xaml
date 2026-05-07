@@ -1,0 +1,109 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--
+        Toast component styles. The toast view uses Style.Toast.Container as
+        its root, plus Style.Button.ToastDismiss for the X button. Per-severity
+        accent color (left bar + icon stroke) is selected via DataTrigger on
+        Severity in the consuming view, not here.
+
+        Slide-and-fade entry/exit animation lives on the toast view's
+        FrameworkElement.Triggers (Loaded event), not in the style — animation
+        timing is per-instance and benefits from being adjacent to the markup
+        being animated.
+    -->
+
+    <!-- ============================================================
+         Style.Toast.Container — root border for an individual toast
+         ============================================================ -->
+    <Style x:Key="Style.Toast.Container" TargetType="Border">
+        <Setter Property="MinWidth" Value="{DynamicResource Size.Toast.MinWidth}" />
+        <Setter Property="MaxWidth" Value="{DynamicResource Size.Toast.MaxWidth}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Toast.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Toast.Border}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Thickness.Stroke.Hairline}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.M}" />
+        <Setter Property="Margin">
+            <Setter.Value>
+                <Thickness Left="0" Top="0" Right="0" Bottom="8" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="Black"
+                                  Opacity="0.18"
+                                  ShadowDepth="2"
+                                  BlurRadius="12"
+                                  Direction="270" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================
+         Style.Button.ToastDismiss — the X button on each toast
+         ============================================================ -->
+    <Style x:Key="Style.Button.ToastDismiss" TargetType="Button">
+        <Setter Property="Width"  Value="{DynamicResource Size.Touch.Min}" />
+        <Setter Property="Height" Value="{DynamicResource Size.Touch.Min}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Content.Secondary}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment"   Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ToolTip" Value="Dismiss" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="Fill"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{DynamicResource Radius.S}" />
+
+                        <!-- X icon. Two diagonal strokes. -->
+                        <Path x:Name="Icon"
+                              Stroke="{TemplateBinding Foreground}"
+                              StrokeThickness="{DynamicResource Stroke.Default}"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Data="M 6,6 L 14,14 M 14,6 L 6,14"
+                              Width="20"
+                              Height="20"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform" />
+
+                        <Border x:Name="FocusRing"
+                                BorderBrush="{DynamicResource Brush.State.Focus}"
+                                BorderThickness="{DynamicResource Thickness.Stroke.Strong}"
+                                CornerRadius="{DynamicResource Radius.S}"
+                                Margin="-2"
+                                IsHitTestVisible="False"
+                                Visibility="Collapsed" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fill" Property="Background"
+                                    Value="{DynamicResource Brush.State.Hover}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Brush.Content.Primary}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Fill" Property="Background"
+                                    Value="{DynamicResource Brush.State.Pressed}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="FocusRing" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

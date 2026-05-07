@@ -22,6 +22,7 @@
                 <ResourceDictionary Source="Themes/Sizing.xaml" />
                 <ResourceDictionary Source="Themes/Tokens.xaml" />
                 <ResourceDictionary Source="Themes/Components/Buttons.xaml" />
+                <ResourceDictionary Source="Themes/Components/Toasts.xaml" />
                 <ResourceDictionary Source="Resources/DataTemplates.xaml" />
                 
             </ResourceDictionary.MergedDictionaries>

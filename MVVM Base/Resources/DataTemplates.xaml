@@ -3,7 +3,9 @@
                     xmlns:vm="clr-namespace:MVVM_Base.ViewModels"
                     xmlns:tvm="clr-namespace:MVVM_Base.ViewModels.Test"
                     xmlns:views="clr-namespace:MVVM_Base.Views"
-                    xmlns:tviews="clr-namespace:MVVM_Base.Views.Test">
+                    xmlns:tviews="clr-namespace:MVVM_Base.Views.Test"
+                    xmlns:vmToasts="clr-namespace:MVVM_Base.Services.Toasts.Internal"
+                    xmlns:viewsToasts="clr-namespace:MVVM_Base.Views.Toasts">
 
     <!--
         VM → View mapping. WPF's ContentControl uses these implicit DataTemplates
@@ -23,6 +25,10 @@
 
     <DataTemplate DataType="{x:Type tvm:Test2ViewModel}">
         <tviews:Test2View />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmToasts:ToastViewModel}">
+        <viewsToasts:ToastView />
     </DataTemplate>
 
 </ResourceDictionary>

@@ -43,6 +43,11 @@
     <SolidColorBrush x:Key="Brush.Status.Success"    Color="#4ADE80" />
     <SolidColorBrush x:Key="Brush.Status.Info"       Color="#60A5FA" />
 
+    <!-- ===== Toast surfaces ===== -->
+    <SolidColorBrush x:Key="Brush.Toast.Background"     Color="#21262D" />
+    <SolidColorBrush x:Key="Brush.Toast.Border"         Color="#30363D" />
+    <SolidColorBrush x:Key="Brush.Toast.Shadow"         Color="#80000000" />
+
     <!-- ===== Special ===== -->
     <SolidColorBrush x:Key="Brush.Scrim"             Color="#A0000000" />
 

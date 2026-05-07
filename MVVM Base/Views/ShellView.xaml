@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:MVVM_Base.ViewModels"
              xmlns:nav="clr-namespace:MVVM_Base.Services.Navigation.Contracts"
+             xmlns:toasts="clr-namespace:MVVM_Base.Views.Toasts"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:ShellViewModel}"
              d:DesignHeight="1080" d:DesignWidth="1920"
@@ -108,6 +109,9 @@
                 Margin="12"
                 ToolTip="Menu"
                 AutomationProperties.Name="Menu" />
+
+        <!-- Layer 4: Toast host. Top-most. Hit-tests only where toasts paint. -->
+        <toasts:ToastHostView DataContext="{Binding ToastHost}" />
 
     </Grid>
 </UserControl>

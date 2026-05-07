@@ -8,6 +8,7 @@ using MVVM_Base.Services.Theming;
 using MVVM_Base.ViewModels;
 using MVVM_Base.ViewModels.Test;
 using System.Windows;
+using MVVM_Base.Services.Toasts;
 
 namespace MVVM_Base
 {
@@ -85,6 +86,9 @@ namespace MVVM_Base
 
             // Theming: registers ITheming. Theme is applied after host build.
             services.AddTheming();
+
+            // Toasts: registers IToastService and ToastHostViewModel.
+            services.AddToasts();
 
             // ---- ViewModels ----
             // Tab root VMs are singletons (per the architecture).

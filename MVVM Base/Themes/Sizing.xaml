@@ -59,6 +59,13 @@
     <CornerRadius x:Key="Radius.L">12</CornerRadius>
     <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
 
+    <!-- ===== Toast-specific dimensions ===== -->
+    <sys:Double x:Key="Size.Toast.MinWidth">320</sys:Double>
+    <sys:Double x:Key="Size.Toast.MaxWidth">480</sys:Double>
+    <sys:Double x:Key="Size.Toast.AccentBarWidth">4</sys:Double>
+    <sys:Double x:Key="Size.Toast.IconSize">20</sys:Double>
+    <sys:Double x:Key="Size.ToastHost.Margin">24</sys:Double>
+
     <!-- ===== Border thicknesses (Thickness) =====
          For Border.BorderThickness and similar Thickness-typed properties.
          Uniform (same value on all four sides). For asymmetric thicknesses

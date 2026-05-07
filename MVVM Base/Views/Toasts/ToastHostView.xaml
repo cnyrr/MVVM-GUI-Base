@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="MVVM_Base.Views.Toasts.ToastHostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             Background="Transparent"
+             IsHitTestVisible="True">
+
+    <!--
+        Toast host. Anchored bottom-right via the consumer (ShellView) using
+        HorizontalAlignment / VerticalAlignment. This UserControl itself is
+        layout-neutral — it just renders the visible collection bottom-up.
+
+        Hover anywhere over the toast region pauses dismissal of every
+        visible toast. Mouse leaving resumes.
+    -->
+    <Grid Margin="{DynamicResource Size.ToastHost.Margin}">
+        <ItemsControl ItemsSource="{Binding VisibleToasts}"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom">
+
+            <!-- Background hit-test catcher so MouseEnter/Leave fires on the whole region,
+                 not just on individual toasts. Without this, the gaps between toasts
+                 wouldn't sustain the hover. -->
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <Border Background="Transparent">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseEnter">
+                                <i:InvokeCommandAction Command="{Binding PauseCommand}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseLeave">
+                                <i:InvokeCommandAction Command="{Binding ResumeCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ItemsPresenter />
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>
+
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <!-- Vertical stack. Newest is at index 0 (host inserts at 0),
+                         so newest renders at the top of the stack — but we want
+                         newest nearest the corner. Reverse via VerticalAlignment
+                         tricks: anchor the panel to bottom and let it grow up. -->
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+        </ItemsControl>
+    </Grid>
+</UserControl>

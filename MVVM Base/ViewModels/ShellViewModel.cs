@@ -44,6 +44,13 @@ namespace MVVM_Base.ViewModels
         [ObservableProperty]
         private bool _isSidebarExpanded;
 
+        /// <summary>
+        /// The toast host VM. Type is the base <see cref="ObservableObject"/>
+        /// because the underlying class is internal — public properties on a
+        /// public class cannot expose internal types.
+        /// </summary>
+        public ObservableObject ToastHost { get; }
+
         // ===== Commands =====
 
         /// <summary>
