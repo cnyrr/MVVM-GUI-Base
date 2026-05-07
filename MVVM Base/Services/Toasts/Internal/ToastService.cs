@@ -1,4 +1,5 @@
 ﻿using MVVM_Base.Services.Toasts.Contracts;
+using MVVM_Base.ViewModels.Toasts;
 using System;
 using System.Windows;
 

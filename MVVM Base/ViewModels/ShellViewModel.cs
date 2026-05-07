@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MVVM_Base.Services.Navigation.Contracts;
+using MVVM_Base.Services.Toasts.Internal;
 
 namespace MVVM_Base.ViewModels
 {
@@ -14,11 +15,13 @@ namespace MVVM_Base.ViewModels
     public sealed partial class ShellViewModel : ObservableObject
     {
         private readonly INavigationFacade _nav;
+        private readonly ToastHostViewModel _toastHost;
 
-        public ShellViewModel(INavigationFacade nav)
+        public ShellViewModel(INavigationFacade nav, ToastHostViewModel toastHost)
         {
             _nav = nav;
             _nav.PropertyChanged += OnNavigationPropertyChanged;
+            _toastHost = toastHost;
         }
 
         // ===== Projected from INavigationFacade (pure pass-through) =====
@@ -45,11 +48,10 @@ namespace MVVM_Base.ViewModels
         private bool _isSidebarExpanded;
 
         /// <summary>
-        /// The toast host VM. Type is the base <see cref="ObservableObject"/>
-        /// because the underlying class is internal — public properties on a
-        /// public class cannot expose internal types.
+        /// The toast host VM. The shell composes the toast host into its visual tree
+        /// — bound by <c>ShellView.xaml</c>'s toast layer to render queued toasts.
         /// </summary>
-        public ObservableObject ToastHost { get; }
+        public ToastHostViewModel ToastHost => _toastHost;
 
         // ===== Commands =====
 

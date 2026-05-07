@@ -1,13 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using MVVM_Base.Services.Toasts.Contracts;
+using MVVM_Base.Services.Toasts.Internal;
 
-namespace MVVM_Base.Services.Toasts.Internal
+namespace MVVM_Base.ViewModels.Toasts
 {
     /// <summary>
     /// A single toast. Pure data — no timer, no state machine. The host
     /// (<see cref="ToastHostViewModel"/>) owns expiration, dismissal, and pause.
     /// </summary>
-    internal sealed partial class ToastViewModel : ObservableObject
+    public sealed partial class ToastViewModel : ObservableObject
     {
         public ToastViewModel(string message, ToastSeverity severity, bool isSticky)
         {

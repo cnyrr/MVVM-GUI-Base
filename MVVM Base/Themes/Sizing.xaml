@@ -64,7 +64,7 @@
     <sys:Double x:Key="Size.Toast.MaxWidth">480</sys:Double>
     <sys:Double x:Key="Size.Toast.AccentBarWidth">4</sys:Double>
     <sys:Double x:Key="Size.Toast.IconSize">20</sys:Double>
-    <sys:Double x:Key="Size.ToastHost.Margin">24</sys:Double>
+    <Thickness  x:Key="Thickness.ToastHost.Margin">24</Thickness>
 
     <!-- ===== Border thicknesses (Thickness) =====
          For Border.BorderThickness and similar Thickness-typed properties.
