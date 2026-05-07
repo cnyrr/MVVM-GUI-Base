@@ -1,0 +1,85 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--
+        Sizing tokens. Theme-independent. FHD (1920x1080) baseline; verified to
+        work fluidly across 1280x720 → 2560x1600 and aspect ratios from 5:4 to
+        16:9 via Grid star sizing.
+
+        All values in device-independent pixels (DIPs). Per-monitor DPI scaling
+        is handled by WPF + the app.manifest declaration; tokens stay constant.
+
+        Used everywhere via {DynamicResource Token.X}. Dynamic (not static) so
+        a future Pattern 2 (resolution-aware) swap can replace this dictionary
+        at runtime without rebuilding visuals.
+
+        New tokens added here must be referenced by their key in views/styles.
+        Do NOT hardcode pixel values in XAML — if a value isn't here and you
+        need it, add it here first.
+    -->
+
+    <!-- ===== Spacing scale (use for Margin / Padding) ===== -->
+    <sys:Double x:Key="Space.None">0</sys:Double>
+    <sys:Double x:Key="Space.XXS">2</sys:Double>
+    <sys:Double x:Key="Space.XS">4</sys:Double>
+    <sys:Double x:Key="Space.S">8</sys:Double>
+    <sys:Double x:Key="Space.M">12</sys:Double>
+    <sys:Double x:Key="Space.L">16</sys:Double>
+    <sys:Double x:Key="Space.XL">24</sys:Double>
+    <sys:Double x:Key="Space.XXL">32</sys:Double>
+    <sys:Double x:Key="Space.XXXL">48</sys:Double>
+
+    <!-- ===== Font family ===== -->
+    <FontFamily x:Key="FontFamily.Default">Segoe UI, Inter, Arial</FontFamily>
+
+    <!-- ===== Font sizes (semantic, FHD-tuned) ===== -->
+    <sys:Double x:Key="FontSize.Caption">12</sys:Double>
+    <sys:Double x:Key="FontSize.Body">14</sys:Double>
+    <sys:Double x:Key="FontSize.BodyLarge">16</sys:Double>
+    <sys:Double x:Key="FontSize.Heading">20</sys:Double>
+    <sys:Double x:Key="FontSize.Title">28</sys:Double>
+    <sys:Double x:Key="FontSize.Display">36</sys:Double>
+
+    <!-- ===== Touch / hit-target heights =====
+         Mouse-and-keyboard primary; sized to remain comfortable if a future
+         deployment adds touch. -->
+    <sys:Double x:Key="Size.Touch.Min">36</sys:Double>
+    <sys:Double x:Key="Size.Touch.Default">44</sys:Double>
+    <sys:Double x:Key="Size.Touch.Comfortable">56</sys:Double>
+
+    <!-- ===== Stroke widths ===== -->
+    <sys:Double x:Key="Stroke.Hairline">1</sys:Double>
+    <sys:Double x:Key="Stroke.Default">1</sys:Double>
+    <sys:Double x:Key="Stroke.Strong">2</sys:Double>
+
+    <!-- ===== Corner radii ===== -->
+    <CornerRadius x:Key="Radius.S">4</CornerRadius>
+    <CornerRadius x:Key="Radius.M">8</CornerRadius>
+    <CornerRadius x:Key="Radius.L">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
+
+    <!-- ===== Border thicknesses (Thickness) =====
+         For Border.BorderThickness and similar Thickness-typed properties.
+         Uniform (same value on all four sides). For asymmetric thicknesses
+         (e.g., a single edge), declare a dedicated Thickness token. -->
+    <Thickness x:Key="Thickness.Stroke.Hairline">1</Thickness>
+    <Thickness x:Key="Thickness.Stroke.Default">1</Thickness>
+    <Thickness x:Key="Thickness.Stroke.Strong">2</Thickness>
+
+    <!-- ===== Shell-specific dimensions =====
+         Referenced by ShellView. Centralized so a single place owns the shell's
+         geometry. -->
+    <sys:Double x:Key="Size.Sidebar.Width">280</sys:Double>
+    <sys:Double x:Key="Size.Sidebar.HeaderHeight">64</sys:Double>
+    <sys:Double x:Key="Size.Hamburger.Hit">40</sys:Double>
+    <sys:Double x:Key="Size.Hamburger.Icon">24</sys:Double>
+
+    <!-- ===== Content widths =====
+         For views that benefit from constrained width (forms, reading content).
+         Views opt in by setting MaxWidth on their root element to one of these. -->
+    <sys:Double x:Key="Width.Content.Narrow">640</sys:Double>
+    <sys:Double x:Key="Width.Content.Wide">1200</sys:Double>
+    <!-- For "use everything," omit MaxWidth entirely. No sentinel value needed. -->
+
+</ResourceDictionary>

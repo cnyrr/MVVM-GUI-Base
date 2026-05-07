@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -9,16 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace MVVM_Base
+namespace MVVM_Base.Views.Test
 {
     /// <summary>
-    /// Application top-level window. Hosts <see cref="Views.ShellView"/>. The
-    /// window is intentionally thin — no logic, no code-behind beyond the
-    /// generated InitializeComponent call. DataContext is set in App.xaml.cs.
+    /// Interaction logic for TestRootView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class TestRootView : UserControl
     {
-        public MainWindow()
+        public TestRootView()
         {
             InitializeComponent();
         }

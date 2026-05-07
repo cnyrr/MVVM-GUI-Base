@@ -1,0 +1,55 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Token KEY declarations. This file defines the *names* every theme must
+        provide. Values here are placeholders (magenta) — they should never
+        appear at runtime. The active theme dictionary (Light.xaml / Dark.xaml)
+        is merged on top and overrides every key with real colors.
+
+        If you see magenta in the running app, the active theme is missing a
+        token override.
+
+        All consumers bind via {DynamicResource Brush.X.Y} so theme swaps
+        repaint without rebuilding visuals.
+    -->
+
+    <!-- ===== Surfaces ===== -->
+    <SolidColorBrush x:Key="Brush.Surface.Shell"     Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Surface.Sidebar"   Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Surface.Content"   Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Surface.Overlay"   Color="Magenta" />
+
+    <!-- ===== Content (text / icons) ===== -->
+    <SolidColorBrush x:Key="Brush.Content.Primary"   Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Content.Secondary" Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Content.Disabled"  Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Content.OnAccent"  Color="Magenta" />
+
+    <!-- ===== Accent (interactive elements) ===== -->
+    <SolidColorBrush x:Key="Brush.Accent.Default"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Accent.Hover"      Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Accent.Pressed"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Accent.Disabled"   Color="Magenta" />
+
+    <!-- ===== Borders / separators ===== -->
+    <SolidColorBrush x:Key="Brush.Border.Subtle"     Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Border.Default"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Border.Strong"     Color="Magenta" />
+
+    <!-- ===== Interaction states ===== -->
+    <SolidColorBrush x:Key="Brush.State.Hover"       Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.State.Pressed"     Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.State.Selected"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.State.Focus"       Color="Magenta" />
+
+    <!-- ===== Status ===== -->
+    <SolidColorBrush x:Key="Brush.Status.Error"      Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Status.Warning"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Status.Success"    Color="Magenta" />
+    <SolidColorBrush x:Key="Brush.Status.Info"       Color="Magenta" />
+
+    <!-- ===== Special ===== -->
+    <SolidColorBrush x:Key="Brush.Scrim"             Color="Magenta" />
+
+</ResourceDictionary>

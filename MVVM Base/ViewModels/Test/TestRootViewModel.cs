@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using MVVM_Base.Services.Navigation.Contracts;
 
-namespace MVVM_Base.ViewModels.RootViewModels
+namespace MVVM_Base.ViewModels.Test
 {
     /// <summary>
     /// Minimal root ViewModel. Exists to verify the navigation framework wires up end-to-end.
