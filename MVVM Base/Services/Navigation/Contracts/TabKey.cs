@@ -8,6 +8,7 @@
     /// </summary>
     public enum TabKey
     {
-        Test
+        Test,
+        TestToasts,
     }
 }

@@ -74,7 +74,7 @@
                 <StackPanel Orientation="Vertical"
                             Margin="8">
 
-                    <Button Command="{Binding SwitchTabAsyncCommand}"
+                    <Button Command="{Binding SwitchTabCommand}"
                             CommandParameter="{x:Static nav:TabKey.Test}">
                         <Button.Style>
                             <Style TargetType="Button"
@@ -91,6 +91,25 @@
                             </Style>
                         </Button.Style>
                         <TextBlock Text="Test" />
+                    </Button>
+                    
+                    <Button Command="{Binding SwitchTabCommand}"
+                            CommandParameter="{x:Static nav:TabKey.TestToasts}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                    BasedOn="{StaticResource Style.Button.SidebarTab}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveTab}"
+                                                Value="{x:Static nav:TabKey.TestToasts}">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource Brush.State.Selected}" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.Accent.Default}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Toast Test" />
                     </Button>
 
                     <!-- Additional tab buttons here as TabKey grows. Each repeats the

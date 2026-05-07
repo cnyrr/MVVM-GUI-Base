@@ -9,6 +9,9 @@
                     
                     xmlns:toast_vm="clr-namespace:MVVM_Base.ViewModels.Toasts"
                     xmlns:toast_v=      "clr-namespace:MVVM_Base.Views.Toasts"
+                    
+                    xmlns:toast_test_vm="clr-namespace:MVVM_Base.ViewModels.TestToasts"
+                    xmlns:toast_test_v=      "clr-namespace:MVVM_Base.Views.TestToasts"
                     >
 
     <!--
@@ -35,4 +38,8 @@
         <toast_v:ToastView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type toast_test_vm:TestToastsRootViewModel}">
+        <toast_test_v:TestToastsRootView />
+    </DataTemplate>
+    
 </ResourceDictionary>

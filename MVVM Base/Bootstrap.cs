@@ -3,12 +3,13 @@ using Microsoft.Extensions.Hosting;
 using MVVM_Base.Services.Navigation;
 using MVVM_Base.Services.Navigation.Contracts;
 using MVVM_Base.Services.Navigation.Internal;
-using MVVM_Base.Services.Theming.Contracts;
 using MVVM_Base.Services.Theming;
+using MVVM_Base.Services.Theming.Contracts;
+using MVVM_Base.Services.Toasts;
 using MVVM_Base.ViewModels;
 using MVVM_Base.ViewModels.Test;
+using MVVM_Base.ViewModels.TestToasts;
 using System.Windows;
-using MVVM_Base.Services.Toasts;
 
 namespace MVVM_Base
 {
@@ -60,6 +61,7 @@ namespace MVVM_Base
             var nav = services.GetRequiredService<INavigationService>();
 
             nav.RegisterTab<TestRootViewModel>(TabKey.Test);
+            nav.RegisterTab<TestToastsRootViewModel>(TabKey.TestToasts);
             // Additional RegisterTab<...>(...) calls go here as tabs are added.
 
             await nav.SetInitialTabAsync(TabKey.Test);
@@ -93,9 +95,13 @@ namespace MVVM_Base
             // ---- ViewModels ----
             // Tab root VMs are singletons (per the architecture).
             services.AddSingleton<TestRootViewModel>();
+            services.AddSingleton<TestToastsRootViewModel>();
+
             // Detail VMs are transient.
             services.AddTransient<Test1ViewModel>();
             services.AddTransient<Test2ViewModel>();
+
+            
 
             // ---- Shell ----
             services.AddSingleton<ShellViewModel>();
