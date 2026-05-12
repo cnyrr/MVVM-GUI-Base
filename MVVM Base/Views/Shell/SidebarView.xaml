@@ -49,7 +49,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type vm:TabItemViewModel}">
-                    <Button Command="{Binding DataContext.SwitchTabAsyncCommand,
+                    <Button Command="{Binding DataContext.SwitchTabCommand,
                                               RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                             CommandParameter="{Binding}">
                         <Button.Style>

@@ -14,10 +14,10 @@ namespace MVVM_Base.Services.Navigation.Internal
     /// 
     /// Tabs are registered declaratively via
     /// <see cref="MVVM_Base.Services.Navigation.NavigationRegistration.AddTab{TRoot}"/>; the
-    /// implementation eagerly resolves each registered root in its constructor and builds the
-    /// immutable <see cref="Tabs"/> list. There is no separate registration or initialization
-    /// step on this interface — <see cref="SwitchTabAsync"/> is the single entry point for
-    /// activating a tab, including the very first activation at startup.
+    /// implementation resolves each registered root via <see cref="InitializeTabs"/>, which
+    /// Bootstrap calls after the DI host is built. There is no other registration or
+    /// initialization step on this interface — <see cref="SwitchTabAsync"/> is the single entry
+    /// point for activating a tab, including the very first activation at startup.
     /// 
     /// This interface is not visible to ViewModels. ViewModels navigate through
     /// <see cref="INavigationFacade"/>, which translates intents into calls on this service and
@@ -43,7 +43,8 @@ namespace MVVM_Base.Services.Navigation.Internal
         IRootViewModel? ActiveTab { get; }
 
         /// <summary>
-        /// All registered tabs, in registration order. Set once at construction; never changes.
+        /// All registered tabs, in registration order. Empty until <see cref="InitializeTabs"/>
+        /// runs; populated after, and never changes thereafter.
         /// </summary>
         IEnumerable<IRootViewModel> Tabs { get; }
 
@@ -56,6 +57,23 @@ namespace MVVM_Base.Services.Navigation.Internal
         /// True if there is at least one frame ahead of the current index in the active tab's history.
         /// </summary>
         bool CanGoForward { get; }
+
+        // ===== Setup =====
+
+        /// <summary>
+        /// Resolves every registered tab root and builds the per-tab history dictionary. Must be
+        /// called once, by Bootstrap, after the DI host has been built and before any code touches
+        /// <see cref="Tabs"/>, <see cref="SwitchTabAsync"/>, or any consumer of those.
+        ///
+        /// Deferred out of the constructor because roots typically take
+        /// <see cref="INavigationFacade"/> as a dependency; resolving them during the service's
+        /// own construction causes the container to re-enter the facade's construction graph,
+        /// producing an undetected cycle with broken state. Calling this after BuildHostAsync
+        /// returns sidesteps the cycle.
+        ///
+        /// Throws if called more than once.
+        /// </summary>
+        void InitializeTabs();
 
         // ===== Operations =====
 

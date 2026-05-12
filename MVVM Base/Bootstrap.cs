@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using MVVM_Base.Services.Navigation;
 using MVVM_Base.Services.Navigation.Contracts;
+using MVVM_Base.Services.Navigation.Internal;
 using MVVM_Base.Services.Theming;
 using MVVM_Base.Services.Theming.Contracts;
 using MVVM_Base.Services.Toasts;
@@ -51,20 +52,24 @@ namespace MVVM_Base
         }
 
         /// <summary>
-        /// Activates the initial tab. Tabs themselves were registered in
-        /// <see cref="ConfigureServices"/> via <c>AddTab&lt;TRoot&gt;()</c>; the navigation
-        /// service eagerly constructed all of them during its own DI resolution. This phase
-        /// only chooses which tab is current at startup.
+        /// Initializes tab roots and activates the initial tab. Tabs themselves were registered
+        /// in <see cref="ConfigureServices"/> via <c>AddTab&lt;TRoot&gt;()</c>; this phase
+        /// resolves each root (now safe — the DI graph has been built) and chooses which tab is
+        /// current at startup.
         ///
         /// After this returns, <see cref="INavigationFacade.CurrentViewModel"/> resolves to the
         /// initial tab's root VM and <see cref="INavigationFacade.ActiveTab"/> is set.
         ///
-        /// Two service lookups here — facade and initial root — are the composition-root cost
-        /// for keeping <c>INavigationFacade</c>'s surface tight (one switch method, takes an
-        /// instance).
+        /// Three service lookups here — internal navigation service (to initialize tabs), facade,
+        /// and initial root — are the composition-root cost for keeping
+        /// <c>INavigationFacade</c>'s public surface tight (one switch method, takes an instance)
+        /// while breaking the construction-time DI cycle that eager resolution would create.
         /// </summary>
         public static async Task ConfigureNavigationAsync(IServiceProvider services)
         {
+            var nav = services.GetRequiredService<INavigationService>();
+            nav.InitializeTabs();
+
             var facade = services.GetRequiredService<INavigationFacade>();
             var initial = services.GetRequiredService<TestRootViewModel>();
 
@@ -99,8 +104,8 @@ namespace MVVM_Base
             // ---- Tab roots ----
             // Each AddTab<T>() registers T as a singleton AND emits a TabRegistration
             // metadata record. The navigation service consumes IEnumerable<TabRegistration>
-            // at construction time and eagerly resolves every root via IViewModelFactory.
-            // Registration order = sidebar order.
+            // when Bootstrap calls InitializeTabs() and resolves every root via
+            // IViewModelFactory. Registration order = sidebar order.
             services.AddTab<TestRootViewModel>();
             services.AddTab<TestToastsRootViewModel>();
             // Additional AddTab<...>() calls go here as tabs are added.
