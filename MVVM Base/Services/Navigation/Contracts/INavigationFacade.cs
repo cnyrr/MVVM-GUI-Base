@@ -18,6 +18,12 @@ namespace MVVM_Base.Services.Navigation.Contracts
     /// Provides direct back/forward/tab-switch operations for explicit user navigation, plus a
     /// batching mechanism for compound transitions that should appear as a single visual change.
     /// 
+    /// Tabs are registered declaratively via
+    /// <see cref="MVVM_Base.Services.Navigation.NavigationRegistration.AddTab{TRoot}"/>; root
+    /// ViewModels are constructed eagerly at app startup and exposed via <see cref="Tabs"/>.
+    /// The first <see cref="SwitchTabAsync"/> call activates the initial tab — there is no
+    /// separate initialization step on this surface.
+    /// 
     /// All methods assume they are called on the WPF UI thread. Background callers must marshal
     /// to the dispatcher before invoking.
     /// </summary>
@@ -26,14 +32,22 @@ namespace MVVM_Base.Services.Navigation.Contracts
         // ===== State (read-only, change-notified via INotifyPropertyChanged) =====
 
         /// <summary>
-        /// The ViewModel currently displayed. Null only at startup before the initial tab is set.
+        /// The ViewModel currently displayed. Null only at startup before the first
+        /// <see cref="SwitchTabAsync"/> call.
         /// </summary>
         ObservableObject? CurrentViewModel { get; }
 
         /// <summary>
-        /// The currently active tab.
+        /// The currently active tab's root ViewModel. Null only at startup before the first
+        /// <see cref="SwitchTabAsync"/> call.
         /// </summary>
-        TabKey ActiveTab { get; }
+        IRootViewModel? ActiveTab { get; }
+
+        /// <summary>
+        /// All registered tabs, in registration order. Set once at construction; never changes.
+        /// Bound by the sidebar's <c>ItemsControl</c>.
+        /// </summary>
+        IEnumerable<IRootViewModel> Tabs { get; }
 
         /// <summary>
         /// True if the active tab's history has at least one frame behind the current position.
@@ -78,10 +92,16 @@ namespace MVVM_Base.Services.Navigation.Contracts
         Task GoForwardAsync();
 
         /// <summary>
-        /// Switches the active tab. The leaving tab's history is preserved; switching back later
-        /// restores its current position. No-op if the requested tab is already active.
+        /// Switches the active tab to the one whose root is <paramref name="root"/>.
+        /// 
+        /// The leaving tab's history is preserved; switching back later restores its current
+        /// position. No-op if <paramref name="root"/> is already the active tab. Throws if
+        /// <paramref name="root"/> is not a registered tab root.
+        /// 
+        /// At app startup, the first call to this method also serves as the initial tab
+        /// activation — there is no leaving phase to skip because no tab is active yet.
         /// </summary>
-        Task SwitchTabAsync(TabKey key);
+        Task SwitchTabAsync(IRootViewModel root);
 
         // ===== Batching =====
 

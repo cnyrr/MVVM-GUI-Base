@@ -36,7 +36,8 @@ namespace MVVM_Base.Services.Navigation.Internal
         // ===== State (forwarded from service) =====
 
         public ObservableObject? CurrentViewModel => _service.CurrentViewModel;
-        public TabKey ActiveTab => _service.ActiveTab;
+        public IRootViewModel? ActiveTab => _service.ActiveTab;
+        public IEnumerable<IRootViewModel> Tabs => _service.Tabs;
         public bool CanGoBack => _service.CanGoBack;
         public bool CanGoForward => _service.CanGoForward;
 
@@ -70,10 +71,10 @@ namespace MVVM_Base.Services.Navigation.Internal
             return _service.GoForwardAsync();
         }
 
-        public Task SwitchTabAsync(TabKey key)
+        public Task SwitchTabAsync(IRootViewModel root)
         {
             AssertUiThread();
-            return _service.SwitchTabAsync(key);
+            return _service.SwitchTabAsync(root);
         }
 
         // ===== Batching =====

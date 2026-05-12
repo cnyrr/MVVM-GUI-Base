@@ -10,107 +10,72 @@ namespace MVVM_Base.Services.Navigation.Internal
     /// <summary>
     /// Default implementation of <see cref="INavigationService"/>.
     /// 
-    /// Owns one <see cref="TabHistory"/> per registered tab. Active tab is identified by
-    /// <see cref="ActiveTab"/>; the current view is the frame at the active tab's current index.
-    /// Property change notifications are raised through <see cref="ObservableObject"/>.
+    /// Owns one <see cref="TabHistory"/> per registered tab, keyed by the root ViewModel's
+    /// concrete <see cref="Type"/>. Tabs are constructed eagerly at service construction: each
+    /// <see cref="TabRegistration"/> in DI is resolved via <see cref="IViewModelFactory"/> and
+    /// stored as a root frame in its own history. The first <see cref="SwitchTabAsync"/> call
+    /// activates one of those existing tabs; subsequent calls switch between them.
+    /// 
+    /// Active tab is identified by <see cref="ActiveTab"/>; the current view is the frame at the
+    /// active tab's current index. Property change notifications are raised through
+    /// <see cref="ObservableObject"/>.
     /// </summary>
     internal sealed class NavigationService : ObservableObject, INavigationService
     {
         private readonly IViewModelFactory _factory;
-        private readonly Dictionary<TabKey, Type> _registeredRoots = new();
-        private readonly Dictionary<TabKey, TabHistory> _tabs = new();
+        private readonly Dictionary<Type, TabHistory> _tabs = new();
 
-        private TabKey? _activeTab;
-        private bool _bootstrapped;
+        private IRootViewModel? _activeTab;
 
-        public NavigationService(IViewModelFactory factory)
+        public NavigationService(
+            IViewModelFactory factory,
+            IEnumerable<TabRegistration> registrations)
         {
             _factory = factory;
+
+            // Eager root construction. One pass through the registrations in DI order; resolve
+            // each root via the factory and wrap it in a TabHistory. The factory is the single
+            // seam to DI — direct IServiceProvider access is forbidden in the navigation
+            // framework. Roots are singletons in DI, so the factory returns the canonical
+            // instances.
+            //
+            // Tab order: Microsoft.Extensions.DependencyInjection preserves singleton registration
+            // order for the same service type, and Dictionary<,> preserves insertion order in
+            // modern .NET. The sidebar reads Tabs.Values directly. If a future runtime ever
+            // breaks dictionary insertion order, a separate ordered list becomes warranted.
+            foreach (var registration in registrations)
+            {
+                if (_tabs.ContainsKey(registration.RootViewModelType))
+                    throw new InvalidOperationException(
+                        $"Tab {registration.RootViewModelType.Name} is registered more than once.");
+
+                // Same runtime-typed factory invocation pattern used by Phase 4 of NavigateToAsync.
+                var rootObservable = (ObservableObject)_factory.GetType()
+                    .GetMethod(nameof(IViewModelFactory.Create))!
+                    .MakeGenericMethod(registration.RootViewModelType)
+                    .Invoke(_factory, null)!;
+
+                var root = (IRootViewModel)rootObservable;
+
+                var rootFrame = new Frame(rootObservable, NoParameters.Instance, new CancellationTokenSource());
+                _tabs[registration.RootViewModelType] = new TabHistory(rootFrame, root);
+            }
         }
 
         // ===== State =====
 
         public ObservableObject? CurrentViewModel
-            => _activeTab is { } tab ? _tabs[tab].Current.ViewModel : null;
+            => _activeTab is null ? null : _tabs[_activeTab.GetType()].Current.ViewModel;
 
-        public TabKey ActiveTab
-            => _activeTab ?? throw new InvalidOperationException(
-                "ActiveTab accessed before SetInitialTabAsync was called.");
+        public IRootViewModel? ActiveTab => _activeTab;
+
+        public IEnumerable<IRootViewModel> Tabs => _tabs.Values.Select(h => h.Root);
 
         public bool CanGoBack
-            => _activeTab is { } tab && _tabs[tab].CanGoBack;
+            => _activeTab is not null && _tabs[_activeTab.GetType()].CanGoBack;
 
         public bool CanGoForward
-            => _activeTab is { } tab && _tabs[tab].CanGoForward;
-
-        // ===== Setup =====
-
-        public void RegisterTab<TRootVM>(TabKey key)
-            where TRootVM : ObservableObject, IRootViewModel
-        {
-            AssertUiThread();
-
-            if (_bootstrapped)
-                throw new InvalidOperationException(
-                    "Cannot register tabs after SetInitialTabAsync has been called.");
-
-            if (_registeredRoots.ContainsKey(key))
-                throw new InvalidOperationException(
-                    $"Tab {key} is already registered.");
-
-            _registeredRoots[key] = typeof(TRootVM);
-        }
-
-        public async Task SetInitialTabAsync(TabKey key)
-        {
-            AssertUiThread();
-
-            if (_bootstrapped)
-                throw new InvalidOperationException(
-                    "SetInitialTabAsync has already been called.");
-
-            if (!_registeredRoots.TryGetValue(key, out var rootType))
-                throw new InvalidOperationException(
-                    $"Tab {key} is not registered.");
-
-            _bootstrapped = true;
-
-            // Construct the initial tab's root and activate it.
-            var rootFrame = ConstructRootFrame(rootType);
-            _tabs[key] = new TabHistory(rootFrame);
-            _tabs[key].MarkActivated();
-            _activeTab = key;
-
-            // Notify property changes before lifecycle so the View can render the loading state
-            // while OnNavigatedToAsync runs.
-            OnPropertyChanged(nameof(CurrentViewModel));
-            OnPropertyChanged(nameof(ActiveTab));
-            OnPropertyChanged(nameof(CanGoBack));
-            OnPropertyChanged(nameof(CanGoForward));
-
-            await DispatchOnNavigatedToAsync(
-                rootFrame,
-                new NavigationContext(IsFirstNavigation: true, From: NavigationDirection.Forward));
-        }
-
-        // ===== Helpers =====
-
-        private Frame ConstructRootFrame(Type rootType)
-        {
-            var vm = (ObservableObject)_factory.GetType()
-                .GetMethod(nameof(IViewModelFactory.Create))!
-                .MakeGenericMethod(rootType)
-                .Invoke(_factory, null)!;
-
-            return new Frame(vm, NoParameters.Instance, new CancellationTokenSource());
-        }
-
-        private static void AssertUiThread()
-        {
-            Debug.Assert(
-                Application.Current.Dispatcher.CheckAccess(),
-                "Navigation service methods must be called on the UI thread.");
-        }
+            => _activeTab is not null && _tabs[_activeTab.GetType()].CanGoForward;
 
         // ===== Operations =====
 
@@ -120,7 +85,7 @@ namespace MVVM_Base.Services.Navigation.Internal
             AssertUiThread();
             EnsureBootstrapped();
 
-            var tab = _tabs[_activeTab!.Value];
+            var tab = _tabs[_activeTab!.GetType()];
             var leaving = tab.Current;
 
             // Phase 1 — Guard check.
@@ -195,7 +160,7 @@ namespace MVVM_Base.Services.Navigation.Internal
             AssertUiThread();
             EnsureBootstrapped();
 
-            var tab = _tabs[_activeTab!.Value];
+            var tab = _tabs[_activeTab!.GetType()];
 
             if (!tab.CanGoBack)
                 throw new InvalidOperationException(
@@ -246,7 +211,7 @@ namespace MVVM_Base.Services.Navigation.Internal
             AssertUiThread();
             EnsureBootstrapped();
 
-            var tab = _tabs[_activeTab!.Value];
+            var tab = _tabs[_activeTab!.GetType()];
 
             if (!tab.CanGoForward)
                 throw new InvalidOperationException(
@@ -292,53 +257,54 @@ namespace MVVM_Base.Services.Navigation.Internal
             catch { /* E5 */ }
         }
 
-        public async Task SwitchTabAsync(TabKey key)
+        public async Task SwitchTabAsync(IRootViewModel root)
         {
             AssertUiThread();
-            EnsureBootstrapped();
+            ArgumentNullException.ThrowIfNull(root);
 
-            if (key == _activeTab)
+            var enteringType = root.GetType();
+            if (!_tabs.TryGetValue(enteringType, out var enteringTab))
+                throw new InvalidOperationException(
+                    $"{enteringType.Name} is not a registered tab root.");
+
+            // Already active: no-op.
+            if (ReferenceEquals(root, _activeTab))
                 return;
 
-            if (!_registeredRoots.TryGetValue(key, out var rootType))
-                throw new InvalidOperationException(
-                    $"Tab {key} is not registered.");
+            // First activation: no leaving phase. The entering tab is fresh; its root frame
+            // is the one constructed eagerly at service construction and has never been arrived on.
+            var isInitialActivation = _activeTab is null;
 
-            var leavingTab = _tabs[_activeTab!.Value];
-            var leaving = leavingTab.Current;
-
-            // Phase 1 — Guard check on the leaving VM.
-            if (leaving.ViewModel is INavigationGuard guard)
+            if (!isInitialActivation)
             {
-                bool canLeave;
+                var leavingTab = _tabs[_activeTab!.GetType()];
+                var leaving = leavingTab.Current;
+
+                // Phase 1 — Guard check on the leaving VM.
+                if (leaving.ViewModel is INavigationGuard guard)
+                {
+                    bool canLeave;
+                    try
+                    { canLeave = await guard.CanNavigateAwayAsync(); }
+                    catch { return; }
+                    if (!canLeave)
+                        return;
+                }
+
+                // Phase 2 — Leaving lifecycle.
                 try
-                { canLeave = await guard.CanNavigateAwayAsync(); }
-                catch { return; }
-                if (!canLeave)
-                    return;
-            }
-
-            // Phase 2 — Leaving lifecycle.
-            try
-            {
-                await DispatchOnNavigatedFromAsync(leaving, NavigationDirection.TabSwitch);
-            }
-            catch { /* E2 */ }
-
-            // Lazy-construct the entering tab if this is its first activation.
-            if (!_tabs.TryGetValue(key, out var enteringTab))
-            {
-                var rootFrame = ConstructRootFrame(rootType);
-                enteringTab = new TabHistory(rootFrame);
-                _tabs[key] = enteringTab;
+                {
+                    await DispatchOnNavigatedFromAsync(leaving, NavigationDirection.TabSwitch);
+                }
+                catch { /* E2 */ }
             }
 
             var arrived = enteringTab.Current;
-            var isFirstActivation = !enteringTab.HasBeenActivated;
+            var isFirstNavigationOnArrived = !enteringTab.HasBeenActivated;
             enteringTab.MarkActivated();
 
             // Phase 4 — Switch the active pointer.
-            _activeTab = key;
+            _activeTab = root;
 
             // Phase 5 — Notify View.
             OnPropertyChanged(nameof(CurrentViewModel));
@@ -352,7 +318,7 @@ namespace MVVM_Base.Services.Navigation.Internal
                 await DispatchOnNavigatedToAsync(
                     arrived,
                     new NavigationContext(
-                        IsFirstNavigation: isFirstActivation,
+                        IsFirstNavigation: isFirstNavigationOnArrived,
                         From: NavigationDirection.TabSwitch));
             }
             catch (OperationCanceledException) { }
@@ -364,7 +330,7 @@ namespace MVVM_Base.Services.Navigation.Internal
             AssertUiThread();
             EnsureBootstrapped();
 
-            var tab = _tabs[_activeTab!.Value];
+            var tab = _tabs[_activeTab!.GetType()];
             if (!tab.CanGoForward)
                 return null;
 
@@ -374,9 +340,16 @@ namespace MVVM_Base.Services.Navigation.Internal
 
         private void EnsureBootstrapped()
         {
-            if (!_bootstrapped)
+            if (_activeTab is null)
                 throw new InvalidOperationException(
-                    "Navigation service has not been bootstrapped. Call SetInitialTabAsync first.");
+                    "Navigation service has no active tab. Call SwitchTabAsync first.");
+        }
+
+        private static void AssertUiThread()
+        {
+            Debug.Assert(
+                Application.Current.Dispatcher.CheckAccess(),
+                "Navigation service methods must be called on the UI thread.");
         }
 
         // ===== Lifecycle dispatch =====
@@ -475,11 +448,19 @@ namespace MVVM_Base.Services.Navigation.Internal
             private int _currentIndex;
             private bool _hasBeenActivated;
 
-            public TabHistory(Frame root)
+            public TabHistory(Frame rootFrame, IRootViewModel root)
             {
-                _frames.Add(root);
+                _frames.Add(rootFrame);
                 _currentIndex = 0;
+                Root = root;
             }
+
+            /// <summary>
+            /// The tab's root ViewModel. Stable for the tab's lifetime; the same instance the
+            /// dictionary keys to by type. Exposed so the navigation service's <c>Tabs</c>
+            /// projection can read root references without re-casting frame ViewModels.
+            /// </summary>
+            public IRootViewModel Root { get; }
 
             public Frame Current => _frames[_currentIndex];
             public bool CanGoBack => _currentIndex > 0;

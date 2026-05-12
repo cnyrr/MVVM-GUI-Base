@@ -12,6 +12,13 @@ namespace MVVM_Base.Services.Navigation.Internal
     /// tab's history is active. Roots are singletons that live for the application's lifetime;
     /// detail ViewModels are transient and may be discarded when the user branches past them.
     /// 
+    /// Tabs are registered declaratively via
+    /// <see cref="MVVM_Base.Services.Navigation.NavigationRegistration.AddTab{TRoot}"/>; the
+    /// implementation eagerly resolves each registered root in its constructor and builds the
+    /// immutable <see cref="Tabs"/> list. There is no separate registration or initialization
+    /// step on this interface — <see cref="SwitchTabAsync"/> is the single entry point for
+    /// activating a tab, including the very first activation at startup.
+    /// 
     /// This interface is not visible to ViewModels. ViewModels navigate through
     /// <see cref="INavigationFacade"/>, which translates intents into calls on this service and
     /// implements the recover-vs-branch decision.
@@ -24,15 +31,21 @@ namespace MVVM_Base.Services.Navigation.Internal
         // ===== State (read-only, change-notified via INotifyPropertyChanged) =====
 
         /// <summary>
-        /// The ViewModel at the current index of the active tab's history. Null only before
-        /// <see cref="SetInitialTabAsync"/> has been called.
+        /// The ViewModel at the current index of the active tab's history. Null only before the
+        /// first <see cref="SwitchTabAsync"/> call.
         /// </summary>
         ObservableObject? CurrentViewModel { get; }
 
         /// <summary>
-        /// The currently active tab. Throws if accessed before bootstrap.
+        /// The currently active tab's root ViewModel. Null only before the first
+        /// <see cref="SwitchTabAsync"/> call.
         /// </summary>
-        TabKey ActiveTab { get; }
+        IRootViewModel? ActiveTab { get; }
+
+        /// <summary>
+        /// All registered tabs, in registration order. Set once at construction; never changes.
+        /// </summary>
+        IEnumerable<IRootViewModel> Tabs { get; }
 
         /// <summary>
         /// True if there is at least one frame behind the current index in the active tab's history.
@@ -43,28 +56,6 @@ namespace MVVM_Base.Services.Navigation.Internal
         /// True if there is at least one frame ahead of the current index in the active tab's history.
         /// </summary>
         bool CanGoForward { get; }
-
-        // ===== Setup (called once at startup) =====
-
-        /// <summary>
-        /// Registers a ViewModel type as the root of the given tab. The root is constructed lazily
-        /// on first activation. Each tab must be registered before <see cref="SetInitialTabAsync"/>
-        /// is called.
-        /// 
-        /// Throws if the tab is already registered.
-        /// </summary>
-        void RegisterTab<TRootVM>(TabKey key)
-            where TRootVM : ObservableObject, IRootViewModel;
-
-        /// <summary>
-        /// Bootstraps the navigation service by activating the given tab and constructing its root.
-        /// Fires the root's <see cref="INavigationAware{TParameters}.OnNavigatedToAsync"/> if it
-        /// implements the interface, with <see cref="NavigationContext.IsFirstNavigation"/> = true.
-        /// 
-        /// Must be called exactly once after all tabs are registered. Throws if called more than
-        /// once or if the tab is not registered.
-        /// </summary>
-        Task SetInitialTabAsync(TabKey key);
 
         // ===== Operations =====
 
@@ -102,15 +93,24 @@ namespace MVVM_Base.Services.Navigation.Internal
         Task GoForwardAsync();
 
         /// <summary>
-        /// Switches the active tab. The leaving tab's current ViewModel receives
-        /// <see cref="INavigationAware{TParameters}.OnNavigatedFromAsync"/> with
-        /// <see cref="NavigationDirection.TabSwitch"/> if it implements the interface; the entering
-        /// tab's current ViewModel receives <see cref="INavigationAware{TParameters}.OnNavigatedToAsync"/>
-        /// with the same direction.
+        /// Switches the active tab to the one whose root is <paramref name="root"/>.
         /// 
-        /// No-op if the requested tab is already active. Throws if the tab is not registered.
+        /// On first invocation (no active tab yet): activates <paramref name="root"/> as the
+        /// initial tab. There is no leaving phase. Fires
+        /// <see cref="INavigationAware{TParameters}.OnNavigatedToAsync"/> on the root with
+        /// <see cref="NavigationContext.IsFirstNavigation"/> = true and
+        /// <see cref="NavigationDirection.TabSwitch"/>.
+        /// 
+        /// On subsequent invocations: the leaving tab's current ViewModel receives
+        /// <see cref="INavigationAware{TParameters}.OnNavigatedFromAsync"/> with
+        /// <see cref="NavigationDirection.TabSwitch"/>; the entering tab's current ViewModel
+        /// receives <see cref="INavigationAware{TParameters}.OnNavigatedToAsync"/> with the same
+        /// direction.
+        /// 
+        /// No-op if <paramref name="root"/> is already the active tab. Throws if
+        /// <paramref name="root"/> is not a registered tab root.
         /// </summary>
-        Task SwitchTabAsync(TabKey key);
+        Task SwitchTabAsync(IRootViewModel root);
 
         /// <summary>
         /// Returns a snapshot of the next forward frame in the active tab's history, or null if
