@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using MVVM_Base.Services.Navigation.Contracts;
 using MVVM_Base.Services.Toasts.Contracts;
 
@@ -9,11 +10,13 @@ namespace MVVM_Base.ViewModels.TestToasts
     /// Test harness for the toast subsystem. Exposes one button per severity, plus
     /// a "fire N at once" control to exercise the host's queue and cap behavior.
     /// </summary>
-    public sealed partial class TestToastsRootViewModel : ObservableObject, IRootViewModel
+    public sealed partial class TestToastsRootViewModel : ViewModelBase, IRootViewModel
     {
+        public string TabLabel => "Toast Tests";
+
         private readonly IToastService _toast;
 
-        public TestToastsRootViewModel(IToastService toast)
+        public TestToastsRootViewModel(IToastService toast, ILogger<TestToastsRootViewModel> logger) : base(logger)
         {
             _toast = toast;
         }

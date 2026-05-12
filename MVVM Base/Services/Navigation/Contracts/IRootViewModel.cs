@@ -26,6 +26,6 @@ namespace MVVM_Base.Services.Navigation.Contracts
         /// implement <c>Label</c> as a literal expression-bodied property; it has no relationship
         /// to the observable <c>Name</c> unless the root chooses to wire them.
         /// </summary>
-        string Label { get; }
+        string TabLabel { get; }
     }
 }

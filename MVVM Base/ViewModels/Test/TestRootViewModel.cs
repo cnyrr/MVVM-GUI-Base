@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using MVVM_Base.Services.Navigation.Contracts;
 
 namespace MVVM_Base.ViewModels.Test
@@ -7,14 +8,16 @@ namespace MVVM_Base.ViewModels.Test
     /// <summary>
     /// Minimal root ViewModel. Exists to verify the navigation framework wires up end-to-end.
     /// </summary>
-    public sealed partial class TestRootViewModel : ObservableObject, IRootViewModel
+    public sealed partial class TestRootViewModel : ViewModelBase, IRootViewModel
     {
+        public string TabLabel => "Navigation Tests";
+
         [ObservableProperty]
-        private string _message = "Font selection test.";
+        private string _message = "Tab root test.";
 
         private readonly INavigationFacade _nav;
 
-        public TestRootViewModel(INavigationFacade nav)
+        public TestRootViewModel(INavigationFacade nav, ILogger<TestRootViewModel> logger) : base(logger)
         {
             _nav = nav;
         }

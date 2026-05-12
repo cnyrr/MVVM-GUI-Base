@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+using MVVM_Base.ViewModels;
 using MVVM_Base.ViewModels.Toasts;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ namespace MVVM_Base.Services.Toasts.Internal
     /// Threading: this class is UI-thread-only. <see cref="ToastService"/>
     /// marshals incoming requests before invoking <see cref="Enqueue"/>.
     /// </remarks>
-    public sealed partial class ToastHostViewModel : ObservableObject
+    public sealed partial class ToastHostViewModel : ViewModelBase
     {
         private const int VisibleCap = 3;
         private static readonly TimeSpan TickInterval = TimeSpan.FromMilliseconds(100);
@@ -30,7 +32,8 @@ namespace MVVM_Base.Services.Toasts.Internal
 
         private DateTime? _pauseStartedAt;
 
-        public ToastHostViewModel()
+        public ToastHostViewModel(ILogger<ToastHostViewModel> logger)
+            : base(logger)
         {
             _timer = new DispatcherTimer(DispatcherPriority.Background)
             {

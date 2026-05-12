@@ -20,7 +20,7 @@ namespace MVVM_Base.ViewModels
     ///   logging adoption doesn't require touching constructor signatures across the codebase.</item>
     /// </list>
     ///
-    /// Note: Tab labels live on <see cref="MVVM_Base.Services.Navigation.Contracts.IRootViewModel.Label"/>,
+    /// Note: Tab labels live on <see cref="MVVM_Base.Services.Navigation.Contracts.IRootViewModel.TabLabel"/>,
     /// not here. <see cref="Name"/> and <c>IRootViewModel.Label</c> are independent — a root may
     /// expose the same string for both, but the framework does not assume they're related.
     /// </summary>

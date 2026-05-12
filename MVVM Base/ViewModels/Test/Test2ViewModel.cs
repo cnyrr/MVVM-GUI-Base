@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using MVVM_Base.Services.Navigation.Contracts;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,12 @@ namespace MVVM_Base.ViewModels.Test
     /// away (back, forward, tab switch) is silently aborted per error policy E1.
     /// </summary>
     public sealed partial class Test2ViewModel
-        : ObservableObject,
+        : ViewModelBase,
           INavigationGuard
     {
         private readonly INavigationFacade _nav;
 
-        public Test2ViewModel(INavigationFacade nav)
+        public Test2ViewModel(INavigationFacade nav, ILogger<Test2ViewModel> logger) : base(logger)
         {
             _nav = nav;
         }

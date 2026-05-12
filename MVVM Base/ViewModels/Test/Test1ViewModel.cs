@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using MVVM_Base.Services.Navigation.Contracts;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,12 @@ namespace MVVM_Base.ViewModels.Test
     /// ever truncated.
     /// </summary>
     public sealed partial class Test1ViewModel
-        : ObservableObject,
+        : ViewModelBase,
           INavigationAware<NoParameters>
     {
         private readonly INavigationFacade _nav;
 
-        public Test1ViewModel(INavigationFacade nav)
+        public Test1ViewModel(INavigationFacade nav, ILogger<Test1ViewModel> logger) : base(logger)
         {
             _nav = nav;
         }

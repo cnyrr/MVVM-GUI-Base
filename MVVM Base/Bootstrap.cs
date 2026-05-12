@@ -2,11 +2,10 @@
 using Microsoft.Extensions.Hosting;
 using MVVM_Base.Services.Navigation;
 using MVVM_Base.Services.Navigation.Contracts;
-using MVVM_Base.Services.Navigation.Internal;
 using MVVM_Base.Services.Theming;
 using MVVM_Base.Services.Theming.Contracts;
 using MVVM_Base.Services.Toasts;
-using MVVM_Base.ViewModels;
+using MVVM_Base.ViewModels.Shell;
 using MVVM_Base.ViewModels.Test;
 using MVVM_Base.ViewModels.TestToasts;
 using System.Windows;
@@ -15,7 +14,7 @@ namespace MVVM_Base
 {
     /// <summary>
     /// Application bootstrap. Encapsulates the discrete startup phases — service
-    /// registration, host build, theme application, navigation registration,
+    /// registration, host build, theme application, initial navigation,
     /// main-window construction — so <see cref="App"/> orchestrates them rather
     /// than performing them directly.
     ///
@@ -52,19 +51,24 @@ namespace MVVM_Base
         }
 
         /// <summary>
-        /// Registers tab roots with the navigation service and sets the initial
-        /// tab. After this returns, <see cref="INavigationFacade.CurrentViewModel"/>
-        /// resolves to the initial tab's root VM.
+        /// Activates the initial tab. Tabs themselves were registered in
+        /// <see cref="ConfigureServices"/> via <c>AddTab&lt;TRoot&gt;()</c>; the navigation
+        /// service eagerly constructed all of them during its own DI resolution. This phase
+        /// only chooses which tab is current at startup.
+        ///
+        /// After this returns, <see cref="INavigationFacade.CurrentViewModel"/> resolves to the
+        /// initial tab's root VM and <see cref="INavigationFacade.ActiveTab"/> is set.
+        ///
+        /// Two service lookups here — facade and initial root — are the composition-root cost
+        /// for keeping <c>INavigationFacade</c>'s surface tight (one switch method, takes an
+        /// instance).
         /// </summary>
         public static async Task ConfigureNavigationAsync(IServiceProvider services)
         {
-            var nav = services.GetRequiredService<INavigationService>();
+            var facade = services.GetRequiredService<INavigationFacade>();
+            var initial = services.GetRequiredService<TestRootViewModel>();
 
-            nav.RegisterTab<TestRootViewModel>(TabKey.Test);
-            nav.RegisterTab<TestToastsRootViewModel>(TabKey.TestToasts);
-            // Additional RegisterTab<...>(...) calls go here as tabs are added.
-
-            await nav.SetInitialTabAsync(TabKey.Test);
+            await facade.SwitchTabAsync(initial);
         }
 
         /// <summary>
@@ -92,19 +96,23 @@ namespace MVVM_Base
             // Toasts: registers IToastService and ToastHostViewModel.
             services.AddToasts();
 
-            // ---- ViewModels ----
-            // Tab root VMs are singletons (per the architecture).
-            services.AddSingleton<TestRootViewModel>();
-            services.AddSingleton<TestToastsRootViewModel>();
+            // ---- Tab roots ----
+            // Each AddTab<T>() registers T as a singleton AND emits a TabRegistration
+            // metadata record. The navigation service consumes IEnumerable<TabRegistration>
+            // at construction time and eagerly resolves every root via IViewModelFactory.
+            // Registration order = sidebar order.
+            services.AddTab<TestRootViewModel>();
+            services.AddTab<TestToastsRootViewModel>();
+            // Additional AddTab<...>() calls go here as tabs are added.
 
-            // Detail VMs are transient.
+            // ---- Detail VMs ----
+            // Transient — fresh instance per navigation.
             services.AddTransient<Test1ViewModel>();
             services.AddTransient<Test2ViewModel>();
 
-            
-
-            // ---- Shell ----
+            // ---- Shell cluster ----
             services.AddSingleton<ShellViewModel>();
+            services.AddSingleton<SidebarViewModel>();
 
             // ---- Application services (logging, config, settings, dialogs, etc.) ----
             // Add as they come online. Deferred for this iteration.
