@@ -16,23 +16,27 @@
 
     <DockPanel LastChildFill="True">
 
-        <!-- Fixed chrome: the dock, always present, every mode -->
+        <!-- Dock: fixed chrome, always interactive, sits above the content region. -->
         <monitor_v:MonitorDockView DockPanel.Dock="Top" />
 
-        <!-- Content area + toast layer share the remaining space -->
-        <Grid>
-            <!-- Layer 0: rendered surface (null in Logo → dark background shows through) -->
-            <ContentControl Content="{Binding Content}"
-                            Focusable="False"
-                            IsTabStop="False" />
+        <!-- Content region: hit-locked as a single unit. When ContentInteractive is false
+         (display input-locked), the entire subtree — rendered surface AND toast layer —
+         stops accepting input. The dock above is a sibling and is unaffected. -->
+        <Grid IsHitTestVisible="{Binding ContentInteractive}">
 
-            <!-- Layer 1: toasts — suppressed in Logo, hit-testable only when not input-locked.
-                 Same shared ToastHostViewModel, set by the window's DataContext wiring. -->
-            <toasts:ToastHostView x:Name="ToastLayer"
-                                  Visibility="{Binding IsLogo, Converter={StaticResource BoolToVis},
-                                               ConverterParameter=Invert}"
-                                  IsHitTestVisible="{Binding IsInputLocked,
-                                               Converter={StaticResource BoolToVis}}" />
+            <!-- Layer 0: rendered surface. Null in Logo → dark background shows through. -->
+            <ContentControl Content="{Binding Content}"
+                        Focusable="False"
+                        IsTabStop="False" />
+
+            <!-- Layer 1: toast layer. DataContext fix (the shared host) is point B — left as-is
+             for now; this step (C) only establishes the hit-lock structure. Visibility binds
+             back to the shell's ToastsVisible via RelativeSource because this element's own
+             DataContext will become the toast host in B. -->
+            <toasts:ToastHostView
+            Visibility="{Binding ToastsVisible,
+                         Converter={StaticResource BoolToVis}}" />
+
         </Grid>
     </DockPanel>
 </UserControl>

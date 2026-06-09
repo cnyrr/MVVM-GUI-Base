@@ -50,11 +50,38 @@ namespace MVVM_Base.ViewModels.Monitor
         private ObservableObject? _liveSnippet;
         private bool _disposed;
 
-        public bool ToastsVisible => !IsLogo;
-        public bool ToastsInteractive => !IsInputLocked;
-        public bool IsLogo => Mode == MonitorMode.Logo;
-        public bool IsMirror => Mode == MonitorMode.Mirror;
-        public bool IsEnrich => Mode == MonitorMode.Enrich;
+        public bool ToastsVisible => EffectiveMode != MonitorMode.Logo;
+
+        /// <summary>
+        /// Whether the content region (rendered surface + toast layer) accepts input. False when the
+        /// display is input-locked. The dock is a separate layer and is never gated by this — it stays
+        /// interactive in every mode so the lock can always be released.
+        /// </summary>
+        public bool ContentInteractive => !IsInputLocked;
+
+        // <summary>
+        /// The mode actually being rendered, as opposed to the operator's sticky <see cref="Mode"/>.
+        /// Differs from <see cref="Mode"/> only in the degraded case: Enrich selected but the current
+        /// ViewModel offers no catalog, so the pre-Enrich surface (Logo/Mirror) is what paints. The dock
+        /// highlights this, not raw Mode, so the active key matches what's on screen.
+        /// </summary>
+        public MonitorMode EffectiveMode =>
+            Mode == MonitorMode.Enrich && _nav.CurrentViewModel is not IMonitorAware
+                ? _modeBeforeEnrich
+                : Mode;
+
+        public bool IsLogoActive => EffectiveMode == MonitorMode.Logo;
+        public bool IsMirrorActive => EffectiveMode == MonitorMode.Mirror;
+        public bool IsEnrichActive => EffectiveMode == MonitorMode.Enrich;
+
+        /// <summary>
+        /// True when the current ViewModel offers a snippet catalog — i.e. Enrich is usable. Drives the
+        /// dock's Enrich button enabled-state. Changes with the current ViewModel.
+        /// </summary>
+        public bool CanEnrich => _nav.CurrentViewModel is IMonitorAware;
+
+        partial void OnIsInputLockedChanged(bool value)
+            => OnPropertyChanged(nameof(ContentInteractive));
 
         public MonitorShellViewModel(
             int displayIndex,
@@ -87,13 +114,6 @@ namespace MVVM_Base.ViewModels.Monitor
         /// <summary>Operator-chosen mode. Changed only via <see cref="SetModeCommand"/>.</summary>
         [ObservableProperty]
         private MonitorMode _mode;
-
-        partial void OnModeChanged(MonitorMode value)
-        {
-            OnPropertyChanged(nameof(IsLogo));
-            OnPropertyChanged(nameof(IsMirror));
-            OnPropertyChanged(nameof(IsEnrich));
-        }
 
         /// <summary>
         /// When true, this display cannot drive the shared navigation (mirror forwarding) and its
@@ -140,10 +160,6 @@ namespace MVVM_Base.ViewModels.Monitor
             Mode = mode;
             Recompute();
         }
-
-        /// <summary>Toggles the input lock. Always available, every mode.</summary>
-        [RelayCommand]
-        private void ToggleInputLock() => IsInputLocked = !IsInputLocked;
 
         /// <summary>Selects a snippet by id for the current parent (Enrich only).</summary>
         [RelayCommand]
@@ -244,6 +260,11 @@ namespace MVVM_Base.ViewModels.Monitor
 
             Content = content;
             OnPropertyChanged(nameof(SelectedSnippetId));
+            OnPropertyChanged(nameof(CanEnrich));
+            OnPropertyChanged(nameof(EffectiveMode));
+            OnPropertyChanged(nameof(IsLogoActive));
+            OnPropertyChanged(nameof(IsMirrorActive));
+            OnPropertyChanged(nameof(IsEnrichActive));
         }
 
         /// <summary>
@@ -337,8 +358,5 @@ namespace MVVM_Base.ViewModels.Monitor
             public string? SelectedId;
             public readonly Dictionary<string, ObservableObject> Instances = new();
         }
-
-        partial void OnIsInputLockedChanged(bool value)
-            => OnPropertyChanged(nameof(ToastsInteractive));
     }
 }

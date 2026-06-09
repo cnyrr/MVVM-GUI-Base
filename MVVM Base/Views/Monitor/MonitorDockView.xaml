@@ -26,22 +26,37 @@
             <Button DockPanel.Dock="Left" Content="Logo"
                     Command="{Binding SetLogoCommand}"
                     Margin="0,0,4,0" Padding="12,6"
-                    Background="{Binding IsLogo, Converter={StaticResource ModeBrush}}" />
+                    Background="{Binding IsLogoActive, Converter={StaticResource ModeBrush}}" />
+
             <Button DockPanel.Dock="Left" Content="Mirror"
                     Command="{Binding SetMirrorCommand}"
                     Margin="0,0,4,0" Padding="12,6"
-                    Background="{Binding IsMirror, Converter={StaticResource ModeBrush}}" />
+                    Background="{Binding IsMirrorActive, Converter={StaticResource ModeBrush}}" />
+
             <Button DockPanel.Dock="Left" Content="Enrich"
                     Command="{Binding SetEnrichCommand}"
+                    IsEnabled="{Binding CanEnrich}"
                     Margin="0,0,16,0" Padding="12,6"
-                    Background="{Binding IsEnrich, Converter={StaticResource ModeBrush}}" />
+                    Background="{Binding IsEnrichActive, Converter={StaticResource ModeBrush}}" />
 
             <!-- Lock toggle -->
             <ToggleButton DockPanel.Dock="Left"
-                          Content="🔒 Lock"
-                          IsChecked="{Binding IsInputLocked}"
-                          Command="{Binding ToggleInputLockCommand}"
-                          Padding="12,6" Margin="0,0,16,0" />
+              IsChecked="{Binding IsInputLocked}"
+              Padding="12,6" Margin="0,0,16,0">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton">
+                        <Setter Property="Content" Value="🔓 Unlocked" />
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.Content.Primary}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInputLocked}" Value="True">
+                                <Setter Property="Content" Value="🔒 Locked" />
+                                <Setter Property="Background" Value="{DynamicResource Brush.State.Selected}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Default}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
 
             <!-- Dynamic snippet selector — present only on IMonitorAware screens -->
             <ItemsControl DockPanel.Dock="Left"
