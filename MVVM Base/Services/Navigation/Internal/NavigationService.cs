@@ -94,6 +94,8 @@ namespace MVVM_Base.Services.Navigation.Internal
         public bool CanGoForward
             => _activeTab is not null && _tabs[_activeTab.GetType()].CanGoForward;
 
+        public event EventHandler<ObservableObject>? ViewModelDiscarded;
+
         // ===== Operations =====
 
         public async Task NavigateToAsync<TViewModel, TParameters>(TParameters parameters)
@@ -429,7 +431,7 @@ namespace MVVM_Base.Services.Navigation.Internal
         /// cancel CTS → fire OnNavigatedFromAsync(Discarded) → Dispose if implemented.
         /// Per E3, exceptions in any step are caught and ignored; the next step runs anyway.
         /// </summary>
-        private static async Task DiscardFrameAsync(Frame frame)
+        private async Task DiscardFrameAsync(Frame frame)
         {
             try
             { frame.Cts.Cancel(); }
@@ -451,6 +453,11 @@ namespace MVVM_Base.Services.Navigation.Internal
             try
             { frame.Cts.Dispose(); }
             catch { /* defensive */ }
+
+            // ViewModel is now fully torn down and unreachable in history. Publish the permanent-discard
+            // fact for external per-instance caches (monitor snippet caches). Fired last so listeners
+            // observe a dead instance.
+            ViewModelDiscarded?.Invoke(this, frame.ViewModel);
         }
 
         // ===== Per-tab history =====

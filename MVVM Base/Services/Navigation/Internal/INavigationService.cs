@@ -58,6 +58,13 @@ namespace MVVM_Base.Services.Navigation.Internal
         /// </summary>
         bool CanGoForward { get; }
 
+        /// <summary>
+        /// Raised when a frame's ViewModel is permanently discarded (after its full teardown sequence).
+        /// Re-raised by the facade for external per-instance caches. Fired last in the discard sequence,
+        /// so listeners observe a fully-dead instance.
+        /// </summary>
+        event EventHandler<ObservableObject>? ViewModelDiscarded;
+
         // ===== Setup =====
 
         /// <summary>

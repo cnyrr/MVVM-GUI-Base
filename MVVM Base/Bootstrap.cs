@@ -1,15 +1,20 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MVVM_Base.Services.Display.Contracts;
+using MVVM_Base.Services.Monitor;
 using MVVM_Base.Services.Navigation;
 using MVVM_Base.Services.Navigation.Contracts;
 using MVVM_Base.Services.Navigation.Internal;
 using MVVM_Base.Services.Theming;
 using MVVM_Base.Services.Theming.Contracts;
 using MVVM_Base.Services.Toasts;
+using MVVM_Base.Services.Toasts.Internal;
 using MVVM_Base.ViewModels.Shell;
 using MVVM_Base.ViewModels.Test;
+using MVVM_Base.ViewModels.TestMonitor;
 using MVVM_Base.ViewModels.TestScaling;
 using MVVM_Base.ViewModels.TestToasts;
+using MVVM_Base.Views.Monitor;
 using System.Windows;
 
 namespace MVVM_Base
@@ -85,16 +90,67 @@ namespace MVVM_Base
         public static Window CreateMainWindow(IServiceProvider services)
         {
             var shellVm = services.GetRequiredService<ShellViewModel>();
+            var primary = services.GetRequiredService<IDisplayService>().Primary();
 
-            var mainWindow = new MainWindow();
+            var window = new MainWindow { DataContext = shellVm };
 
-            #if DEBUG
-            Diagnostics.ResolutionTester.Attach(mainWindow);
-            #endif
+            if (primary.Windowed)
+            {
+                window.WindowState = WindowState.Normal;
+                window.Left = primary.X;
+                window.Top = primary.Y;
+                window.Width = primary.Width;
+                window.Height = primary.Height;
+            }
+            else
+            {
+                window.WindowState = WindowState.Maximized; // production: fullscreen on the touchscreen
+            }
 
-            mainWindow.DataContext = shellVm;
+            return window;
+        }
 
-            return mainWindow;
+        private static readonly List<Window> _monitorWindows = new();
+
+        /// <summary>
+        /// Creates one MonitorWindow per secondary display. Case A (no secondary) → no-op. Each window gets
+        /// its own MonitorShellViewModel. Windows are tracked for disposal on exit.
+        /// </summary>
+        public static void ConfigureMonitors(IServiceProvider services)
+        {
+            var displays = services.GetRequiredService<IDisplayService>();
+            if (!displays.HasSecondary())
+                return;
+
+            var factory = services.GetRequiredService<MonitorShellFactory>();
+            var toastHost = services.GetRequiredService<ToastHostViewModel>();
+
+            foreach (var d in displays.Secondaries())
+            {
+                var shell = factory.Create(d.Index);
+                var window = new MonitorWindow
+                {
+                    DataContext = shell,
+                    Left = d.X,
+                    Top = d.Y,
+                    Width = d.Width,
+                    Height = d.Height,
+                };
+                // Toast layer inside MonitorShellView binds the shared ToastHostViewModel; supply it.
+                // (Wired via the view's ToastHostView DataContext — see note below.)
+                _monitorWindows.Add(window);
+                window.Show();
+            }
+        }
+
+        public static void DisposeMonitors()
+        {
+            foreach (var w in _monitorWindows)
+            {
+                (w.DataContext as IDisposable)?.Dispose();
+                w.Close();
+            }
+            _monitorWindows.Clear();
         }
 
         // ----- private helpers -----
@@ -111,6 +167,9 @@ namespace MVVM_Base
             // Toasts: registers IToastService and ToastHostViewModel.
             services.AddToasts();
 
+            // Monitors: registers IMonitorService and any related VMs.
+            services.AddMonitor();
+
             // ---- Tab roots ----
             // Each AddTab<T>() registers T as a singleton AND emits a TabRegistration
             // metadata record. The navigation service consumes IEnumerable<TabRegistration>
@@ -119,6 +178,7 @@ namespace MVVM_Base
             services.AddTab<TestRootViewModel>();
             services.AddTab<TestToastsRootViewModel>();
             services.AddTab<TestScalingRootViewModel>();
+            services.AddTab<TestMonitorRootViewModel>();
             // Additional AddTab<...>() calls go here as tabs are added.
 
             // ---- Detail VMs ----
@@ -126,6 +186,9 @@ namespace MVVM_Base
             services.AddTransient<Test1ViewModel>();
             services.AddTransient<Test2ViewModel>();
             services.AddTransient<TestStressViewModel>();
+            services.AddTransient<StaticSnippetViewModel>();
+            services.AddTransient<PollingSnippetViewModel>();
+            services.AddTransient<ChartSnippetViewModel>();
 
             // ---- Shell cluster ----
             services.AddSingleton<ShellViewModel>();

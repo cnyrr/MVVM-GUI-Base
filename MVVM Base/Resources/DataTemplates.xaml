@@ -1,9 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     
-                    xmlns:base_vm="clr-namespace:MVVM_Base.ViewModels"
-                    xmlns:base_v=      "clr-namespace:MVVM_Base.Views"
-                    
                     xmlns:test_vm="clr-namespace:MVVM_Base.ViewModels.Test"
                     xmlns:test_v=      "clr-namespace:MVVM_Base.Views.Test"
                     
@@ -15,6 +12,9 @@
                     
                     xmlns:scale_test_vm="clr-namespace:MVVM_Base.ViewModels.TestScaling"
                     xmlns:scale_test_v=      "clr-namespace:MVVM_Base.Views.TestScaling"
+                    
+                    xmlns:mon_test_vm="clr-namespace:MVVM_Base.ViewModels.TestMonitor"
+                    xmlns:mon_test_v=      "clr-namespace:MVVM_Base.Views.TestMonitor"
                     >
 
     <!--
@@ -51,6 +51,22 @@
 
     <DataTemplate DataType="{x:Type scale_test_vm:TestStressViewModel}">
         <scale_test_v:TestStressView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type mon_test_vm:TestMonitorRootViewModel}">
+        <mon_test_v:TestMonitorRootView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type mon_test_vm:StaticSnippetViewModel}">
+        <mon_test_v:StaticSnippetView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type mon_test_vm:PollingSnippetViewModel}">
+        <mon_test_v:PollingSnippetView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type mon_test_vm:ChartSnippetViewModel}">
+        <mon_test_v:ChartSnippetView />
     </DataTemplate>
 
 </ResourceDictionary>

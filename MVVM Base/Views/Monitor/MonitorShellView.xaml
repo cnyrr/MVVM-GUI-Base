@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="MVVM_Base.Views.Monitor.MonitorShellView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:MVVM_Base.ViewModels.Monitor"
+             xmlns:monitor_v="clr-namespace:MVVM_Base.Views.Monitor"
+             xmlns:toasts="clr-namespace:MVVM_Base.Views.Toasts"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:MonitorShellViewModel}"
+             Background="{DynamicResource Brush.Surface.Shell}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Fixed chrome: the dock, always present, every mode -->
+        <monitor_v:MonitorDockView DockPanel.Dock="Top" />
+
+        <!-- Content area + toast layer share the remaining space -->
+        <Grid>
+            <!-- Layer 0: rendered surface (null in Logo → dark background shows through) -->
+            <ContentControl Content="{Binding Content}"
+                            Focusable="False"
+                            IsTabStop="False" />
+
+            <!-- Layer 1: toasts — suppressed in Logo, hit-testable only when not input-locked.
+                 Same shared ToastHostViewModel, set by the window's DataContext wiring. -->
+            <toasts:ToastHostView x:Name="ToastLayer"
+                                  Visibility="{Binding IsLogo, Converter={StaticResource BoolToVis},
+                                               ConverterParameter=Invert}"
+                                  IsHitTestVisible="{Binding IsInputLocked,
+                                               Converter={StaticResource BoolToVis}}" />
+        </Grid>
+    </DockPanel>
+</UserControl>

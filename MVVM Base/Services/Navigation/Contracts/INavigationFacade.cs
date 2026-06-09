@@ -61,6 +61,23 @@ namespace MVVM_Base.Services.Navigation.Contracts
         /// </summary>
         bool CanGoForward { get; }
 
+        // ===== Lifecycle events =====
+
+        /// <summary>
+        /// Raised when a ViewModel instance leaves the navigation history permanently — discarded
+        /// (branched past, or discarded after a failed arrival) and unable to become current again.
+        /// Carries the discarded instance.
+        ///
+        /// For consumers holding per-ViewModel external state keyed by instance (e.g. a secondary-display
+        /// shell caching enrichment snippets) so they can release it deterministically when the owning
+        /// ViewModel is gone for good.
+        ///
+        /// Unlike the property-change notifications, this is NOT subject to <see cref="BeginBatch"/>
+        /// suppression — it fires immediately, even mid-batch, because it signals resource lifetime, not
+        /// a visual state change.
+        /// </summary>
+        event EventHandler<ObservableObject>? ViewModelDiscarded;
+
         // ===== Operations =====
 
         /// <summary>

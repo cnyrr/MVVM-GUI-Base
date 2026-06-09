@@ -1,7 +1,8 @@
 ﻿<Application x:Class="MVVM_Base.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:MVVM_Base">
+             xmlns:local="clr-namespace:MVVM_Base"
+             xmlns:conv="clr-namespace:MVVM_Base.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,6 +27,8 @@
                 <ResourceDictionary Source="Resources/DataTemplates.xaml" />
                 
             </ResourceDictionary.MergedDictionaries>
+
+            <conv:BoolToAccentBrushConverter x:Key="ModeBrush"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
