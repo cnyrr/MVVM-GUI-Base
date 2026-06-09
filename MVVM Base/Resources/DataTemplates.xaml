@@ -12,6 +12,9 @@
                     
                     xmlns:toast_test_vm="clr-namespace:MVVM_Base.ViewModels.TestToasts"
                     xmlns:toast_test_v=      "clr-namespace:MVVM_Base.Views.TestToasts"
+                    
+                    xmlns:scale_test_vm="clr-namespace:MVVM_Base.ViewModels.TestScaling"
+                    xmlns:scale_test_v=      "clr-namespace:MVVM_Base.Views.TestScaling"
                     >
 
     <!--
@@ -41,5 +44,13 @@
     <DataTemplate DataType="{x:Type toast_test_vm:TestToastsRootViewModel}">
         <toast_test_v:TestToastsRootView />
     </DataTemplate>
-    
+
+    <DataTemplate DataType="{x:Type scale_test_vm:TestScalingRootViewModel}">
+        <scale_test_v:TestScalingRootView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type scale_test_vm:TestStressViewModel}">
+        <scale_test_v:TestStressView />
+    </DataTemplate>
+
 </ResourceDictionary>

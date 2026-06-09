@@ -8,6 +8,7 @@ using MVVM_Base.Services.Theming.Contracts;
 using MVVM_Base.Services.Toasts;
 using MVVM_Base.ViewModels.Shell;
 using MVVM_Base.ViewModels.Test;
+using MVVM_Base.ViewModels.TestScaling;
 using MVVM_Base.ViewModels.TestToasts;
 using System.Windows;
 
@@ -84,7 +85,16 @@ namespace MVVM_Base
         public static Window CreateMainWindow(IServiceProvider services)
         {
             var shellVm = services.GetRequiredService<ShellViewModel>();
-            return new MainWindow { DataContext = shellVm };
+
+            var mainWindow = new MainWindow();
+
+            #if DEBUG
+            Diagnostics.ResolutionTester.Attach(mainWindow);
+            #endif
+
+            mainWindow.DataContext = shellVm;
+
+            return mainWindow;
         }
 
         // ----- private helpers -----
@@ -108,12 +118,14 @@ namespace MVVM_Base
             // IViewModelFactory. Registration order = sidebar order.
             services.AddTab<TestRootViewModel>();
             services.AddTab<TestToastsRootViewModel>();
+            services.AddTab<TestScalingRootViewModel>();
             // Additional AddTab<...>() calls go here as tabs are added.
 
             // ---- Detail VMs ----
             // Transient — fresh instance per navigation.
             services.AddTransient<Test1ViewModel>();
             services.AddTransient<Test2ViewModel>();
+            services.AddTransient<TestStressViewModel>();
 
             // ---- Shell cluster ----
             services.AddSingleton<ShellViewModel>();

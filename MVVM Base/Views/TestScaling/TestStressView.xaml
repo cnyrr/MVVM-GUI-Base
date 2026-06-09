@@ -1,0 +1,324 @@
+﻿<UserControl x:Class="MVVM_Base.Views.TestScaling.TestStressView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:MVVM_Base.ViewModels.TestScaling"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:TestStressViewModel}"
+             d:DesignHeight="1080" d:DesignWidth="1920"
+             Background="{DynamicResource Brush.Surface.Content}">
+
+    <!--
+        Stress test page. Floods the layout to surface failure under load:
+          * Long-text trio   — one unbreakable string in Wrap / WrapWithOverflow / NoWrap+Ellipsis.
+          * Reading column   — long paragraph clamped to Width.Content.Wide; must cap on ultrawide.
+          * Density grid     — 200 cells reflowing in a WrapPanel as width changes.
+          * Data table       — fixed + star columns; Name ellipsizes, Detail wraps, status pills.
+          * Button bar       — many buttons wrapping.
+        Everything sits in a vertical ScrollViewer so portrait / 800x480 can scroll rather than clip.
+
+        Column pixel widths in the table are literals: this is a diagnostic view, intentionally
+        exempt from the token discipline that product views follow.
+    -->
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24">
+
+            <!-- Back to the scale-test root (this page sits on its tab's history) -->
+            <Button Content="Back"
+                    Command="{Binding GoBackCommand}"
+                    HorizontalAlignment="Left"
+                    Padding="16,8"
+                    Margin="0,0,0,8" />
+
+            <!-- ===== Header + live viewport readout ===== -->
+            <TextBlock Text="Stress Test"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Title}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <TextBlock Margin="0,4,0,0"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource Brush.Content.Secondary}">
+                <Run Text="Content viewport: " />
+                <Run Text="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, StringFormat={}{0:0}}" />
+                <Run Text=" x " />
+                <Run Text="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, StringFormat={}{0:0}}" />
+                <Run Text=" DIP" />
+            </TextBlock>
+
+            <!-- ===== Long-text handling ===== -->
+            <TextBlock Text="Unbreakable string handling"
+                       Margin="0,32,0,8"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Heading}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <!-- Wrap: emergency character-wrap when no break opportunity exists -->
+            <Border MaxWidth="{DynamicResource Width.Content.Narrow}"
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,8"
+                    Background="{DynamicResource Brush.Surface.Overlay}"
+                    BorderBrush="{DynamicResource Brush.Border.Default}"
+                    BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                    CornerRadius="{DynamicResource Radius.M}"
+                    Padding="12">
+                <StackPanel>
+                    <TextBlock Text="TextWrapping=Wrap" FontWeight="SemiBold"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource Brush.Content.Secondary}" />
+                    <TextBlock Text="{Binding UnbreakableToken}"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </StackPanel>
+            </Border>
+
+            <!-- WrapWithOverflow: spills past the box edge; ClipToBounds makes the spill visible -->
+            <Border MaxWidth="{DynamicResource Width.Content.Narrow}"
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,8"
+                    ClipToBounds="True"
+                    Background="{DynamicResource Brush.Surface.Overlay}"
+                    BorderBrush="{DynamicResource Brush.Border.Default}"
+                    BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                    CornerRadius="{DynamicResource Radius.M}"
+                    Padding="12">
+                <StackPanel>
+                    <TextBlock Text="TextWrapping=WrapWithOverflow (clipped at box)" FontWeight="SemiBold"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource Brush.Content.Secondary}" />
+                    <TextBlock Text="{Binding UnbreakableToken}"
+                               TextWrapping="WrapWithOverflow"
+                               Margin="0,4,0,0"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </StackPanel>
+            </Border>
+
+            <!-- NoWrap + ellipsis: the well-behaved option for single-line constrained slots -->
+            <Border MaxWidth="{DynamicResource Width.Content.Narrow}"
+                    HorizontalAlignment="Left"
+                    Background="{DynamicResource Brush.Surface.Overlay}"
+                    BorderBrush="{DynamicResource Brush.Border.Default}"
+                    BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                    CornerRadius="{DynamicResource Radius.M}"
+                    Padding="12">
+                <StackPanel>
+                    <TextBlock Text="TextWrapping=NoWrap + CharacterEllipsis" FontWeight="SemiBold"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource Brush.Content.Secondary}" />
+                    <TextBlock Text="{Binding UnbreakableToken}"
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,4,0,0"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Constrained reading column ===== -->
+            <TextBlock Text="Reading column (max 1200 DIP)"
+                       Margin="0,32,0,8"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Heading}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <TextBlock Text="{Binding LongParagraph}"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Left"
+                       MaxWidth="{DynamicResource Width.Content.Wide}"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.BodyLarge}"
+                       Foreground="{DynamicResource Brush.Content.Secondary}" />
+
+            <!-- ===== Density grid ===== -->
+            <TextBlock Text="Density grid (200 reflowing cells)"
+                       Margin="0,32,0,8"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Heading}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <ItemsControl ItemsSource="{Binding Cells}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="{DynamicResource Size.Touch.Default}"
+                                Height="{DynamicResource Size.Touch.Default}"
+                                Margin="2"
+                                Background="{DynamicResource Brush.State.Selected}"
+                                BorderBrush="{DynamicResource Brush.Border.Default}"
+                                BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                                CornerRadius="{DynamicResource Radius.S}">
+                            <TextBlock Text="{Binding}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="{DynamicResource FontFamily.Default}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       Foreground="{DynamicResource Brush.Content.Primary}" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ===== Data table ===== -->
+            <TextBlock Text="Data table (40 rows)"
+                       Margin="0,32,0,8"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Heading}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <Border Background="{DynamicResource Brush.Surface.Overlay}"
+                    BorderBrush="{DynamicResource Brush.Border.Default}"
+                    BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                    CornerRadius="{DynamicResource Radius.M}">
+                <StackPanel>
+
+                    <!-- Header row -->
+                    <Grid Margin="12,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="ID"     FontWeight="SemiBold"
+                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+                        <TextBlock Grid.Column="1" Text="Status" FontWeight="SemiBold"
+                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+                        <TextBlock Grid.Column="2" Text="Name"   FontWeight="SemiBold"
+                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+                        <TextBlock Grid.Column="3" Text="Detail" FontWeight="SemiBold"
+                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+                    </Grid>
+
+                    <!-- Rows -->
+                    <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:StressRow}">
+                                <Border BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                        BorderThickness="0,1,0,0"
+                                        Padding="12,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="2*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding Id}"
+                                                   VerticalAlignment="Center"
+                                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+
+                                        <!-- Status pill: background by DataTrigger on Status -->
+                                        <Border Grid.Column="1"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                CornerRadius="{DynamicResource Radius.Pill}"
+                                                Padding="10,2">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource Brush.Status.Info}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Success">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.Status.Success}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Warning">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.Status.Warning}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Error">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.Status.Error}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding Status}"
+                                                       FontFamily="{DynamicResource FontFamily.Default}"
+                                                       FontSize="{DynamicResource FontSize.Caption}"
+                                                       Foreground="{DynamicResource Brush.Content.OnAccent}" />
+                                        </Border>
+
+                                        <!-- Name: ellipsizes when the star column is squeezed -->
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Name}"
+                                                   TextWrapping="NoWrap"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"
+                                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource Brush.Content.Primary}" />
+
+                                        <!-- Detail: wraps -->
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding Detail}"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   FontFamily="{DynamicResource FontFamily.Default}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource Brush.Content.Secondary}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Wrapping button bar ===== -->
+            <TextBlock Text="Wrapping control bar"
+                       Margin="0,32,0,8"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Heading}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <WrapPanel HorizontalAlignment="Left">
+                <Button Content="Action 01" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 02" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 03" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 04" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 05" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 06" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 07" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 08" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 09" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 10" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 11" Padding="16,8" Margin="0,0,8,8" />
+                <Button Content="Action 12" Padding="16,8" Margin="0,0,8,8" />
+            </WrapPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
