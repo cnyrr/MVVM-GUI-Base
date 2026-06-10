@@ -1,70 +1,79 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using MVVM_Base.Services;
 using MVVM_Base.Services.Monitor.Contracts;
+using MVVM_Base.Services.Monitor.Internal;
 using MVVM_Base.Services.Navigation.Contracts;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 
 namespace MVVM_Base.ViewModels.Monitor
 {
     /// <summary>
-    /// Per-display projection layer for one secondary display. One instance exists per secondary
-    /// display, each independent in mode, input lock, and snippet selection. Sibling to
-    /// <see cref="Shell.ShellViewModel"/>: both project the single navigation context from
-    /// <see cref="INavigationFacade"/>; neither owns navigation truth and neither knows the other
-    /// exists.
+    /// Per-display projection layer for one secondary display. Drives the view: derives the rendered
+    /// surface from (mode, current VM, pre-Enrich mode), owns the dock's mode/lock/selection state,
+    /// and projects the current ViewModel from <see cref="INavigationFacade"/>.
     ///
-    /// Read-only toward navigation in Enrich and Logo (pure projection). In Mirror, the view may
-    /// forward input to the same shared facade when not input-locked — acting as an additional input
-    /// device onto the one navigation context, never a second context. The shell exposes
-    /// <see cref="IsInputLocked"/>; the view wires the actual forwarding and toast hit-testing.
-    ///
-    /// State model:
-    /// <list type="bullet">
-    ///   <item><see cref="Mode"/> — sticky operator intent; only the dock changes it.</item>
-    ///   <item><see cref="_modeBeforeEnrich"/> — the surface to fall back to when Enrich has no
-    ///   catalog to show; recorded on entering Enrich, defaults <see cref="MonitorMode.Logo"/>.</item>
-    ///   <item><see cref="_cache"/> — per-parent-instance snippet instances + selection, preserving
-    ///   state across back/forward and evicted on permanent discard.</item>
-    ///   <item><see cref="_liveSnippet"/> — the single snippet currently <c>OnShown</c> on THIS
-    ///   display; the at-most-one-active invariant.</item>
-    /// </list>
-    ///
-    /// Every state change routes through <see cref="Recompute"/>, the single function that derives
-    /// the rendered surface and drives <see cref="IMonitorScreenAware"/> visibility transitions.
+    /// It does NOT own enrichment machinery. Snippet birth, caching, death, and visibility hooks live
+    /// in <see cref="MonitorEnrichmentHost"/> (one per display). The shell computes the current
+    /// enrichment fact and pushes it to the host via <see cref="MonitorEnrichmentHost.Project"/>,
+    /// rendering whatever the host returns. The shell is a projection that drives a view; the host is
+    /// the machinery.
     /// </summary>
-    public sealed partial class MonitorShellViewModel : ViewModelBase, IDisposable
+    internal sealed partial class MonitorShellViewModel : ViewModelBase, IDisposable
     {
         private readonly int _displayIndex;
         private readonly INavigationFacade _nav;
-        private readonly IViewModelFactory _factory;
-
-        private readonly Dictionary<ObservableObject, ParentEntry> _cache = new();
+        private readonly MonitorEnrichmentHost _enrichment;
 
         private MonitorMode _modeBeforeEnrich = MonitorMode.Logo;
-        private ObservableObject? _liveSnippet;
         private bool _disposed;
 
-        public bool ToastsVisible => EffectiveMode != MonitorMode.Logo;
+        public MonitorShellViewModel(
+            int displayIndex,
+            INavigationFacade nav,
+            MonitorEnrichmentHost enrichment,
+            IMonitorSettings settings,
+            ILogger<MonitorShellViewModel> logger)
+            : base(logger)
+        {
+            _displayIndex = displayIndex;
+            _nav = nav;
+            _enrichment = enrichment;
 
-        /// <summary>
-        /// Whether the content region (rendered surface + toast layer) accepts input. False when the
-        /// display is input-locked. The dock is a separate layer and is never gated by this — it stays
-        /// interactive in every mode so the lock can always be released.
-        /// </summary>
-        public bool ContentInteractive => !IsInputLocked;
+            _mode = settings.InitialMode(displayIndex);
+            _isInputLocked = settings.InitialInputLocked(displayIndex);
+            if (_mode == MonitorMode.Enrich)
+                _modeBeforeEnrich = MonitorMode.Logo;
 
-        // <summary>
-        /// The mode actually being rendered, as opposed to the operator's sticky <see cref="Mode"/>.
-        /// Differs from <see cref="Mode"/> only in the degraded case: Enrich selected but the current
-        /// ViewModel offers no catalog, so the pre-Enrich surface (Logo/Mirror) is what paints. The dock
-        /// highlights this, not raw Mode, so the active key matches what's on screen.
-        /// </summary>
+            _nav.PropertyChanged += OnNavigationPropertyChanged;
+
+            Recompute();
+        }
+
+        public string DisplayLabel => $"Screen #{_displayIndex}";
+
+        // ===== Sticky operator state =====
+
+        [ObservableProperty]
+        private MonitorMode _mode;
+
+        [ObservableProperty]
+        private bool _isInputLocked;
+
+        // ===== Derived, bindable outputs =====
+
+        [ObservableProperty]
+        private object? _content;
+
+        [ObservableProperty]
+        private IReadOnlyList<SnippetDefinition> _dockSnippets = Array.Empty<SnippetDefinition>();
+
+        public string? SelectedSnippetId { get; private set; }
+
+        public bool CanEnrich => _nav.CurrentViewModel is IMonitorAware;
+
         public MonitorMode EffectiveMode =>
             Mode == MonitorMode.Enrich && _nav.CurrentViewModel is not IMonitorAware
                 ? _modeBeforeEnrich
@@ -74,149 +83,54 @@ namespace MVVM_Base.ViewModels.Monitor
         public bool IsMirrorActive => EffectiveMode == MonitorMode.Mirror;
         public bool IsEnrichActive => EffectiveMode == MonitorMode.Enrich;
 
-        /// <summary>
-        /// True when the current ViewModel offers a snippet catalog — i.e. Enrich is usable. Drives the
-        /// dock's Enrich button enabled-state. Changes with the current ViewModel.
-        /// </summary>
-        public bool CanEnrich => _nav.CurrentViewModel is IMonitorAware;
+        public bool ContentInteractive => !IsInputLocked;
+        public bool ToastsVisible => EffectiveMode != MonitorMode.Logo;
 
         partial void OnIsInputLockedChanged(bool value)
             => OnPropertyChanged(nameof(ContentInteractive));
 
-        public MonitorShellViewModel(
-            int displayIndex,
-            INavigationFacade nav,
-            IViewModelFactory factory,
-            IMonitorSettings settings,
-            ILogger<MonitorShellViewModel> logger)
-            : base(logger)
-        {
-            _displayIndex = displayIndex;
-            _nav = nav;
-            _factory = factory;
-
-            _mode = settings.InitialMode(displayIndex);
-            _isInputLocked = settings.InitialInputLocked(displayIndex);
-            if (_mode == MonitorMode.Enrich)
-                _modeBeforeEnrich = MonitorMode.Logo; // no prior manual mode at cold start
-
-            _nav.PropertyChanged += OnNavigationPropertyChanged;
-            _nav.ViewModelDiscarded += OnViewModelDiscarded;
-
-            Recompute();
-        }
-
-        /// <summary>Label for the dock header. "Screen #1" for the first secondary, etc.</summary>
-        public string DisplayLabel => $"Screen #{_displayIndex}";
-
-        // ===== Sticky operator state =====
-
-        /// <summary>Operator-chosen mode. Changed only via <see cref="SetModeCommand"/>.</summary>
-        [ObservableProperty]
-        private MonitorMode _mode;
-
-        /// <summary>
-        /// When true, this display cannot drive the shared navigation (mirror forwarding) and its
-        /// toast region is non-interactive. Render-only. The dock itself stays interactive so the
-        /// lock can always be released.
-        /// </summary>
-        [ObservableProperty]
-        private bool _isInputLocked;
-
-        // ===== Derived, bindable outputs =====
-
-        /// <summary>
-        /// What the window paints below the dock. Null in Logo (dark/blank area). In Mirror, the
-        /// facade's current ViewModel (same instance, second materialized view). In Enrich, the
-        /// selected snippet instance — or the pre-Enrich surface when the current VM offers no
-        /// catalog.
-        /// </summary>
-        [ObservableProperty]
-        private object? _content;
-
-        /// <summary>
-        /// The current VM's snippet catalog if it is <see cref="IMonitorAware"/>, else empty. Drives
-        /// the dock's dynamic snippet selector — present only on enrichable screens.
-        /// </summary>
-        [ObservableProperty]
-        private IReadOnlyList<SnippetDefinition> _dockSnippets = Array.Empty<SnippetDefinition>();
-
-        /// <summary>The selected snippet's id for the current parent, or null. Highlights the dock.</summary>
-        public string? SelectedSnippetId =>
-            _nav.CurrentViewModel is { } vm && _cache.TryGetValue(vm, out var e) ? e.SelectedId : null;
-
         // ===== Dock commands =====
 
-        /// <summary>Sets the operator mode. Records the pre-Enrich surface when entering Enrich.</summary>
         [RelayCommand]
         private void SetMode(MonitorMode mode)
         {
             if (mode == Mode)
                 return;
-
             if (mode == MonitorMode.Enrich && Mode != MonitorMode.Enrich)
-                _modeBeforeEnrich = Mode; // remember Logo/Mirror to fall back to during gaps
-
+                _modeBeforeEnrich = Mode;
             Mode = mode;
             Recompute();
         }
 
-        /// <summary>Selects a snippet by id for the current parent (Enrich only).</summary>
-        [RelayCommand]
-        private void SelectSnippet(string? id)
-        {
-            if (id is null || _nav.CurrentViewModel is not { } vm)
-                return;
-            if (!_cache.TryGetValue(vm, out var entry) || entry.SelectedId == id)
-                return;
-
-            entry.SelectedId = id;
-            Recompute();
-        }
-
-        /// <summary>Dock convenience commands — XAML binds these rather than passing enum literals.</summary>
         [RelayCommand] private void SetLogo() => SetMode(MonitorMode.Logo);
         [RelayCommand] private void SetMirror() => SetMode(MonitorMode.Mirror);
         [RelayCommand] private void SetEnrich() => SetMode(MonitorMode.Enrich);
 
-        // ===== Navigation reactions =====
+        [RelayCommand]
+        private void SelectSnippet(string? id)
+        {
+            if (id is null || id == SelectedSnippetId)
+                return;
+            SelectedSnippetId = id;
+            Recompute();
+        }
+
+        // ===== Navigation reaction =====
 
         private void OnNavigationPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(INavigationFacade.CurrentViewModel))
-                Recompute();
-        }
-
-        private void OnViewModelDiscarded(object? sender, ObservableObject vm)
-        {
-            if (!_cache.TryGetValue(vm, out var entry))
-                return;
-
-            // Hide-then-dispose. If this parent's live snippet is the one currently shown on this
-            // display, hide it first so any resource stops cleanly (covers the E5 path where a
-            // discarded VM was momentarily current).
-            foreach (var instance in entry.Instances.Values)
             {
-                if (ReferenceEquals(instance, _liveSnippet))
-                {
-                    (instance as IMonitorScreenAware)?.OnHidden();
-                    _liveSnippet = null;
-                }
-                (instance as IDisposable)?.Dispose();
+                // Restore this parent's last selection if the host remembers it; else Recompute auto-selects.
+                SelectedSnippetId = _nav.CurrentViewModel is { } vm
+                    ? _enrichment.LastSelectedId(vm)
+                    : null;
+                Recompute();
             }
-
-            _cache.Remove(vm);
-            Recompute();
         }
 
         // ===== The single decision point =====
 
-        /// <summary>
-        /// Derives the rendered surface from (mode, current VM, pre-Enrich mode) and drives snippet
-        /// visibility. Idempotent: every state change calls this; it figures out the correct
-        /// <see cref="Content"/>, <see cref="DockSnippets"/>, and which snippet should be live, then
-        /// applies exactly the transitions needed.
-        /// </summary>
         private void Recompute()
         {
             var current = _nav.CurrentViewModel;
@@ -224,41 +138,31 @@ namespace MVVM_Base.ViewModels.Monitor
 
             DockSnippets = catalog ?? Array.Empty<SnippetDefinition>();
 
-            object? content;
-            ObservableObject? shouldBeLive = null;
+            // Auto-select the first snippet when entering an enrichable parent with no selection.
+            if (catalog is { Count: > 0 } && SelectedSnippetId is null)
+                SelectedSnippetId = catalog[0].Id;
 
-            switch (Mode)
+            // Determine whether we are actually rendering an Enrich snippet, and which one.
+            SnippetDefinition? selected = null;
+            if (Mode == MonitorMode.Enrich && catalog is { Count: > 0 })
+                selected = FindDefinition(catalog, SelectedSnippetId) ?? catalog[0];
+
+            // Push the enrichment fact to the host; it returns the instance to render (or null).
+            var enrichInstance = _enrichment.Project(current, selected);
+
+            // Derive the rendered surface.
+            Content = Mode switch
             {
-                case MonitorMode.Logo:
-                    content = null;
-                    break;
+                MonitorMode.Logo => null,
+                MonitorMode.Mirror => current,
+                MonitorMode.Enrich => selected is not null
+                                        ? enrichInstance
+                                        // degraded: no catalog — fall back to pre-Enrich surface
+                                        : _modeBeforeEnrich == MonitorMode.Mirror ? current : null,
+                _ => null,
+            };
 
-                case MonitorMode.Mirror:
-                    content = current; // same instance; window materializes its own view
-                    break;
-
-                case MonitorMode.Enrich:
-                    if (current is not null && catalog is { Count: > 0 })
-                    {
-                        var snippet = ResolveSelectedSnippet(current, catalog);
-                        content = snippet;
-                        shouldBeLive = snippet;
-                    }
-                    else
-                    {
-                        // No catalog to enrich — fall back to the surface in effect before Enrich.
-                        content = _modeBeforeEnrich == MonitorMode.Mirror ? current : null;
-                    }
-                    break;
-
-                default:
-                    content = null;
-                    break;
-            }
-
-            UpdateLiveness(shouldBeLive);
-
-            Content = content;
+            // Notify derived members that depend on current VM / mode.
             OnPropertyChanged(nameof(SelectedSnippetId));
             OnPropertyChanged(nameof(CanEnrich));
             OnPropertyChanged(nameof(EffectiveMode));
@@ -266,49 +170,6 @@ namespace MVVM_Base.ViewModels.Monitor
             OnPropertyChanged(nameof(IsMirrorActive));
             OnPropertyChanged(nameof(IsEnrichActive));
             OnPropertyChanged(nameof(ToastsVisible));
-        }
-
-        /// <summary>
-        /// Returns the selected snippet instance for <paramref name="parent"/>, building the cache
-        /// entry (auto-selecting the first catalog member) and lazily constructing the instance via
-        /// the DI factory on first selection. Unselected catalog members are never built — keeping a
-        /// performance-heavy snippet inert until actually shown.
-        /// </summary>
-        private ObservableObject ResolveSelectedSnippet(
-            ObservableObject parent,
-            IReadOnlyList<SnippetDefinition> catalog)
-        {
-            if (!_cache.TryGetValue(parent, out var entry))
-            {
-                entry = new ParentEntry { SelectedId = catalog[0].Id };
-                _cache[parent] = entry;
-            }
-
-            var def = FindDefinition(catalog, entry.SelectedId) ?? catalog[0];
-            entry.SelectedId = def.Id;
-
-            if (!entry.Instances.TryGetValue(def.Id, out var instance))
-            {
-                instance = CreateSnippet(def.SnippetViewModelType);
-                entry.Instances[def.Id] = instance;
-            }
-            return instance;
-        }
-
-        /// <summary>
-        /// Applies the single visibility transition: hides the current live snippet if it differs
-        /// from <paramref name="shouldBeLive"/>, then shows the new one. Enforces at-most-one-active
-        /// on this display and the "inactive the moment not visible" guarantee — uniformly across
-        /// navigation, mode change, selection change, and eviction.
-        /// </summary>
-        private void UpdateLiveness(ObservableObject? shouldBeLive)
-        {
-            if (ReferenceEquals(_liveSnippet, shouldBeLive))
-                return;
-
-            (_liveSnippet as IMonitorScreenAware)?.OnHidden();
-            _liveSnippet = shouldBeLive;
-            (_liveSnippet as IMonitorScreenAware)?.OnShown();
         }
 
         private static SnippetDefinition? FindDefinition(
@@ -322,17 +183,6 @@ namespace MVVM_Base.ViewModels.Monitor
             return null;
         }
 
-        /// <summary>
-        /// Resolves a snippet ViewModel by runtime type through <see cref="IViewModelFactory"/> —
-        /// the same construction seam tabs and detail VMs use. Mirrors the reflection pattern in
-        /// <c>NavigationService.InitializeTabs</c> so construction stays consistent and DI-owned.
-        /// </summary>
-        private ObservableObject CreateSnippet(Type snippetType)
-            => (ObservableObject)_factory.GetType()
-                .GetMethod(nameof(IViewModelFactory.Create))!
-                .MakeGenericMethod(snippetType)
-                .Invoke(_factory, null)!;
-
         // ===== Teardown =====
 
         public void Dispose()
@@ -342,22 +192,7 @@ namespace MVVM_Base.ViewModels.Monitor
             _disposed = true;
 
             _nav.PropertyChanged -= OnNavigationPropertyChanged;
-            _nav.ViewModelDiscarded -= OnViewModelDiscarded;
-
-            (_liveSnippet as IMonitorScreenAware)?.OnHidden();
-            _liveSnippet = null;
-
-            foreach (var entry in _cache.Values)
-                foreach (var instance in entry.Instances.Values)
-                    (instance as IDisposable)?.Dispose();
-            _cache.Clear();
-        }
-
-        /// <summary>Per-parent cache: which snippet is selected and the instances built so far.</summary>
-        private sealed class ParentEntry
-        {
-            public string? SelectedId;
-            public readonly Dictionary<string, ObservableObject> Instances = new();
+            _enrichment.Dispose();
         }
     }
 }
