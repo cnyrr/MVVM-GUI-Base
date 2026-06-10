@@ -5,41 +5,44 @@ using MVVM_Base.Services.Display.Contracts;
 namespace MVVM_Base.Services.Display.Internal
 {
     /// <summary>
-    /// Development <see cref="IDisplayService"/>: fabricates one primary plus three windowed
-    /// secondaries, laid out on a single physical screen as a top row of three monitors with the
-    /// main screen filling the area below. Bounds are derived from the real primary work area so the
-    /// layout fits whatever machine runs it. The real Win32 implementation replaces only this class.
+    /// Development <see cref="IDisplayService"/>: fabricates a topology on a single physical screen.
+    /// <c>secondaryCount</c> = 0 yields Case A (one maximized primary, no secondaries); a positive
+    /// count yields Case B (primary in the lower area, that many secondaries tiled across the top).
+    /// The real Win32 implementation replaces this class entirely.
     /// </summary>
     internal sealed class MockDisplayService : IDisplayService
     {
         public IReadOnlyList<DisplayInfo> Displays { get; }
 
-        public MockDisplayService()
+        public MockDisplayService(int secondaryCount)
         {
-            // Real usable screen area (excludes taskbar). SystemParameters is available app-wide.
-            var areaW = SystemParameters.WorkArea.Width;
-            var areaH = SystemParameters.WorkArea.Height;
-            var originX = SystemParameters.WorkArea.Left;
-            var originY = SystemParameters.WorkArea.Top;
+            var area = SystemParameters.WorkArea;
+            var list = new List<DisplayInfo>();
 
-            // Top row: three equal-width secondaries occupying the top third.
-            var rowH = areaH / 3.0;
-            var colW = areaW / 3.0;
-
-            // Main: the remaining lower two-thirds, full width.
-            var mainY = originY + rowH;
-            var mainH = areaH - rowH;
-
-            Displays = new[]
+            if (secondaryCount <= 0)
             {
-                // Primary (touchscreen / main) — below the row. Not windowed; fills its area.
-                new DisplayInfo(0, originX, mainY, areaW, mainH, IsPrimary: true, Windowed: true),
+                // Case A: single primary, maximized (Windowed:false), full screen.
+                list.Add(new DisplayInfo(
+                    0, area.Left, area.Top, area.Width, area.Height,
+                    IsPrimary: true, Windowed: false));
+            }
+            else
+            {
+                // Case B (dev): primary fills the lower area; secondaries tile across the top.
+                var rowH = area.Height / 3.0;
+                var colW = area.Width / secondaryCount;
 
-                // Three secondaries across the top, left → right.
-                new DisplayInfo(1, originX + 0 * colW, originY, colW, rowH, IsPrimary: false, Windowed: true),
-                new DisplayInfo(2, originX + 1 * colW, originY, colW, rowH, IsPrimary: false, Windowed: true),
-                new DisplayInfo(3, originX + 2 * colW, originY, colW, rowH, IsPrimary: false, Windowed: true),
-            };
+                list.Add(new DisplayInfo(
+                    0, area.Left, area.Top + rowH, area.Width, area.Height - rowH,
+                    IsPrimary: true, Windowed: true));
+
+                for (int i = 0; i < secondaryCount; i++)
+                    list.Add(new DisplayInfo(
+                        i + 1, area.Left + i * colW, area.Top, colW, rowH,
+                        IsPrimary: false, Windowed: true));
+            }
+
+            Displays = list;
         }
     }
 }

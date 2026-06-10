@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MVVM_Base.Services.Display.Contracts;
+using MVVM_Base.Services.Display.Internal;
 using MVVM_Base.Services.Monitor;
 using MVVM_Base.Services.Navigation;
 using MVVM_Base.Services.Navigation.Contracts;
@@ -30,6 +31,13 @@ namespace MVVM_Base
     /// </summary>
     internal static class Bootstrap
     {
+        /// <summary>
+        /// Dev display topology. The enum value IS the secondary-monitor count: SingleScreen = 0 (Case A,
+        /// no secondaries), FourScreens = 3 (Case B, three windowed dev monitors). Cast to int for the count.
+        /// The real DisplayService, when it exists, ignores this and reads actual hardware.
+        /// </summary>
+        private enum DevDisplayTopology { SingleScreen = 0, FourScreens = 3 }
+
         /// <summary>
         /// Builds the host: registers all services, then constructs the
         /// <see cref="IHost"/> and starts it. The returned host is owned by the
@@ -174,6 +182,10 @@ namespace MVVM_Base
             services.AddToasts();
 
             // Monitors: registers IMonitorService and any related VMs.
+
+            // Display topology: dev mock for now. Enum value is the secondary count.
+            services.AddSingleton<IDisplayService>(new MockDisplayService((int)DevDisplayTopology.FourScreens));
+
             services.AddMonitor();
 
             // ---- Tab roots ----
