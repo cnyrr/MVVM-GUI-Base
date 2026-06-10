@@ -30,6 +30,8 @@ namespace MVVM_Base
 
             await Bootstrap.ConfigureNavigationAsync(_host.Services);
 
+            Bootstrap.PublishSharedResources(_host.Services);
+
             Bootstrap.ConfigureMonitors(_host.Services);
 
             MainWindow = Bootstrap.CreateMainWindow(_host.Services);

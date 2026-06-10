@@ -153,6 +153,12 @@ namespace MVVM_Base
             _monitorWindows.Clear();
         }
 
+        public static void PublishSharedResources(IServiceProvider services)
+        {
+            Application.Current.Resources["SharedToastHost"] =
+                services.GetRequiredService<ToastHostViewModel>();
+        }
+
         // ----- private helpers -----
 
         private static void ConfigureServices(IServiceCollection services)

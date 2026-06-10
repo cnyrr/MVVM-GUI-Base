@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using MVVM_Base.Services.Navigation.Contracts;
-using MVVM_Base.Services.Toasts.Internal;
 
 namespace MVVM_Base.ViewModels.Shell
 {
@@ -22,18 +21,15 @@ namespace MVVM_Base.ViewModels.Shell
     {
         private readonly INavigationFacade _nav;
         private readonly SidebarViewModel _sidebar;
-        private readonly ToastHostViewModel _toastHost;
 
         public ShellViewModel(
             INavigationFacade nav,
             SidebarViewModel sidebar,
-            ToastHostViewModel toastHost,
             ILogger<ShellViewModel> logger)
             : base(logger)
         {
             _nav = nav;
             _sidebar = sidebar;
-            _toastHost = toastHost;
 
             _nav.PropertyChanged += OnNavigationPropertyChanged;
         }
@@ -53,11 +49,6 @@ namespace MVVM_Base.ViewModels.Shell
         /// the shell view's sidebar layer.
         /// </summary>
         public SidebarViewModel Sidebar => _sidebar;
-
-        /// <summary>
-        /// Toast host VM. Bound by the shell view's toast layer.
-        /// </summary>
-        public ToastHostViewModel ToastHost => _toastHost;
 
         // ===== Shell-only state =====
 

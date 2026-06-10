@@ -265,6 +265,7 @@ namespace MVVM_Base.ViewModels.Monitor
             OnPropertyChanged(nameof(IsLogoActive));
             OnPropertyChanged(nameof(IsMirrorActive));
             OnPropertyChanged(nameof(IsEnrichActive));
+            OnPropertyChanged(nameof(ToastsVisible));
         }
 
         /// <summary>

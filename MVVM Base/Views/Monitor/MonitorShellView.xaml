@@ -29,13 +29,16 @@
                         Focusable="False"
                         IsTabStop="False" />
 
-            <!-- Layer 1: toast layer. DataContext fix (the shared host) is point B — left as-is
-             for now; this step (C) only establishes the hit-lock structure. Visibility binds
-             back to the shell's ToastsVisible via RelativeSource because this element's own
-             DataContext will become the toast host in B. -->
+            <!-- Layer 1: toast layer. Binds the shared singleton (published as an app resource),
+                 so the same toasts appear here as on the touchscreen and all other monitors.
+                 Its own DataContext is the toast host, so Visibility reaches back to the shell's
+                 ToastsVisible via RelativeSource. Hit-testing is inherited from the content Grid
+                 (input lock), so no IsHitTestVisible here. -->
             <toasts:ToastHostView
-            Visibility="{Binding ToastsVisible,
-                         Converter={StaticResource BoolToVis}}" />
+                DataContext="{StaticResource SharedToastHost}"
+                Visibility="{Binding DataContext.ToastsVisible,
+                             RelativeSource={RelativeSource AncestorType=UserControl},
+                             Converter={StaticResource BoolToVis}}" />
 
         </Grid>
     </DockPanel>

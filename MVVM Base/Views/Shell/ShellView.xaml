@@ -60,7 +60,7 @@
                 AutomationProperties.Name="Menu" />
 
         <!-- ===== Layer 4: Toast host ===== -->
-        <toasts:ToastHostView DataContext="{Binding ToastHost}" />
+        <toasts:ToastHostView DataContext="{StaticResource SharedToastHost}" />
 
     </Grid>
 </UserControl>
