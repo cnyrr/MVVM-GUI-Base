@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestMonitor
+namespace Wpf.Shell.Bench.ViewModels.TestMonitor
 {
     /// <summary>Second plain snippet. Selecting between this and Polling on two displays proves
     /// independent per-screen selection and per-screen instances.</summary>

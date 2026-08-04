@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestMonitor
+namespace Wpf.Shell.Bench.ViewModels.TestMonitor
 {
     /// <summary>Plain snippet, no lifecycle. Proves a non-IMonitorScreenAware catalog member works.</summary>
     public sealed partial class StaticSnippetViewModel : ViewModelBase

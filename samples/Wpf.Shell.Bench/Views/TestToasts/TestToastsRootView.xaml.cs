@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Wpf.Shell.Views.TestToasts
+namespace Wpf.Shell.Bench.Views.TestToasts
 {
     /// <summary>
     /// Interaction logic for TestToastsRootView.xaml

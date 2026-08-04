@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Wpf.Shell
+namespace Wpf.Shell.Bench
 {
     /// <summary>
     /// Application top-level window. Hosts <see cref="Views.ShellView"/>. The

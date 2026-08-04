@@ -3,14 +3,14 @@ using Microsoft.Extensions.Hosting;
 using Wpf.Shell.Services.Navigation;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Navigation.Internal;
-using Wpf.Shell.ViewModels;
-using Wpf.Shell.ViewModels.Test;
-using Wpf.Shell.Views;
+using Wpf.Shell.Bench.ViewModels;
+using Wpf.Shell.Bench.ViewModels.Test;
+using Wpf.Shell.Bench.Views;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Wpf.Shell
+namespace Wpf.Shell.Bench
 {
     /// <summary>
     /// Application composition root. Builds the host, registers services, registers

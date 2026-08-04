@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Wpf.Shell.Views.TestMonitor
+namespace Wpf.Shell.Bench.Views.TestMonitor
 {
     /// <summary>
     /// Interaction logic for PollingSnippetView.xaml

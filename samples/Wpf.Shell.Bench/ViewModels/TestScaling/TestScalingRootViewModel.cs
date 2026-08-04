@@ -1,9 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
-using Wpf.Shell.ViewModels.TestScaling;
+using Wpf.Shell.Bench.ViewModels.TestScaling;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestScaling
+namespace Wpf.Shell.Bench.ViewModels.TestScaling
 {
     /// <summary>
     /// Tab root for eyeballing layout scaling. Now also navigates to the stress-test page, which

@@ -3,8 +3,9 @@ using System.Linq;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestScaling
+namespace Wpf.Shell.Bench.ViewModels.TestScaling
 {
     /// <summary>
     /// A page (transient detail VM, not a tab root) that pushes the layout, theming, and scaling

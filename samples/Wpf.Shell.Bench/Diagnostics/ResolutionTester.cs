@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace Wpf.Shell.Diagnostics
+namespace Wpf.Shell.Bench.Diagnostics
 {
     /// <summary>
     /// DEBUG-only resolution / aspect-ratio test harness. Attaches to a window and drops it out

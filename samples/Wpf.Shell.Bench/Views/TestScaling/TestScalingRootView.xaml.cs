@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Wpf.Shell.Views.TestScaling
+namespace Wpf.Shell.Bench.Views.TestScaling
 {
     /// <summary>
     /// Interaction logic for TestScalingView.xaml

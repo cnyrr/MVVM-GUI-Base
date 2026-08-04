@@ -1,8 +1,8 @@
-﻿<Application x:Class="Wpf.Shell.App"
+﻿<Application x:Class="Wpf.Shell.Bench.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Wpf.Shell"
-             xmlns:conv="clr-namespace:Wpf.Shell.Converters">
+             xmlns:local="clr-namespace:Wpf.Shell.Bench"
+             xmlns:conv="clr-namespace:Wpf.Shell.Bench.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

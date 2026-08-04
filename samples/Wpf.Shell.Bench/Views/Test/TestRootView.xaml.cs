@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Wpf.Shell.Views.Test
+namespace Wpf.Shell.Bench.Views.Test
 {
     /// <summary>
     /// Interaction logic for TestRootView.xaml

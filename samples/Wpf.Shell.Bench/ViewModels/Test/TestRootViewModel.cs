@@ -2,8 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.Test
+namespace Wpf.Shell.Bench.ViewModels.Test
 {
     /// <summary>
     /// Minimal root ViewModel. Exists to verify the navigation framework wires up end-to-end.

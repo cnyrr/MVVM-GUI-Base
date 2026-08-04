@@ -2,8 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.ViewModels;
+using Wpf.Shell.Bench.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestMonitor
+namespace Wpf.Shell.Bench.ViewModels.TestMonitor
 {
     /// <summary>Tab root that offers three snippets to secondary displays.</summary>
     public sealed partial class TestMonitorRootViewModel : ViewModelBase, IRootViewModel, IMonitorAware

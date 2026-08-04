@@ -3,7 +3,6 @@
     <AssemblyName>Wpf.Shell</AssemblyName>
     <RootNamespace>Wpf.Shell</RootNamespace>
     <UseWPF>true</UseWPF>
-    <OutputType>WinExe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

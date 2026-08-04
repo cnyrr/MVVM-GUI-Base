@@ -3,8 +3,9 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestMonitor
+namespace Wpf.Shell.Bench.ViewModels.TestMonitor
 {
     /// <summary>
     /// Demonstrates <see cref="IMonitorScreenAware"/>. A timer increments <see cref="Ticks"/> ONLY

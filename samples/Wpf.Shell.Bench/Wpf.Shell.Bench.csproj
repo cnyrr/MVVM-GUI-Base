@@ -9,34 +9,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Wpf.Shell\Wpf.Shell.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Views\TestMonitor\ChartSnippetView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestMonitor\PollingSnippetView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestMonitor\StaticSnippetView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestMonitor\TestMonitorRootView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestScaling\TestScalingRootView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestScaling\TestStressView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\TestToasts\TestToastsRootView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\Test\Test1View.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="Views\Test\TestRootView.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	</ItemGroup>
 </Project>

@@ -3,8 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Toasts.Contracts;
+using Wpf.Shell.ViewModels;
 
-namespace Wpf.Shell.ViewModels.TestToasts
+namespace Wpf.Shell.Bench.ViewModels.TestToasts
 {
     /// <summary>
     /// Test harness for the toast subsystem. Exposes one button per severity, plus

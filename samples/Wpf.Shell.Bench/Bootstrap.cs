@@ -11,14 +11,14 @@ using Wpf.Shell.Services.Theming.Contracts;
 using Wpf.Shell.Services.Toasts;
 using Wpf.Shell.Services.Toasts.Internal;
 using Wpf.Shell.ViewModels.Shell;
-using Wpf.Shell.ViewModels.Test;
-using Wpf.Shell.ViewModels.TestMonitor;
-using Wpf.Shell.ViewModels.TestScaling;
-using Wpf.Shell.ViewModels.TestToasts;
+using Wpf.Shell.Bench.ViewModels.Test;
+using Wpf.Shell.Bench.ViewModels.TestMonitor;
+using Wpf.Shell.Bench.ViewModels.TestScaling;
+using Wpf.Shell.Bench.ViewModels.TestToasts;
 using Wpf.Shell.Views.Monitor;
 using System.Windows;
 
-namespace Wpf.Shell
+namespace Wpf.Shell.Bench
 {
     /// <summary>
     /// Application bootstrap. Encapsulates the discrete startup phases — service
