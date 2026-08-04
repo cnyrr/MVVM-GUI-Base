@@ -6,8 +6,6 @@
 
 	<AssemblyName>Wpf.Shell</AssemblyName>
     <RootNamespace>Wpf.Shell</RootNamespace>
-
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	  
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
