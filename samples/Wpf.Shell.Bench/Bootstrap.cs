@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Wpf.Shell.Services.Display.Contracts;
-using Wpf.Shell.Services.Display.Internal;
-using Wpf.Shell.Services.Monitor;
 using Wpf.Shell.Services.Navigation;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Navigation.Internal;
@@ -12,10 +10,8 @@ using Wpf.Shell.Services.Toasts;
 using Wpf.Shell.Services.Toasts.Internal;
 using Wpf.Shell.ViewModels.Shell;
 using Wpf.Shell.Bench.ViewModels.Test;
-using Wpf.Shell.Bench.ViewModels.TestMonitor;
 using Wpf.Shell.Bench.ViewModels.TestScaling;
 using Wpf.Shell.Bench.ViewModels.TestToasts;
-using Wpf.Shell.Views.Monitor;
 using System.Windows;
 
 namespace Wpf.Shell.Bench
@@ -31,13 +27,6 @@ namespace Wpf.Shell.Bench
     /// </summary>
     internal static class Bootstrap
     {
-        /// <summary>
-        /// Dev display topology. The enum value IS the secondary-monitor count: SingleScreen = 0 (Case A,
-        /// no secondaries), FourScreens = 3 (Case B, three windowed dev monitors). Cast to int for the count.
-        /// The real DisplayService, when it exists, ignores this and reads actual hardware.
-        /// </summary>
-        private enum DevDisplayTopology { SingleScreen = 0, FourScreens = 3 }
-
         /// <summary>
         /// Builds the host: registers all services, then constructs the
         /// <see cref="IHost"/> and starts it. The returned host is owned by the
@@ -118,49 +107,6 @@ namespace Wpf.Shell.Bench
             return window;
         }
 
-        private static readonly List<Window> _monitorWindows = new();
-
-        /// <summary>
-        /// Creates one MonitorWindow per secondary display. Case A (no secondary) → no-op. Each window gets
-        /// its own MonitorShellViewModel. Windows are tracked for disposal on exit.
-        /// </summary>
-        public static void ConfigureMonitors(IServiceProvider services)
-        {
-            var displays = services.GetRequiredService<IDisplayService>();
-            if (!displays.HasSecondary())
-                return;
-
-            var factory = services.GetRequiredService<MonitorShellFactory>();
-            var toastHost = services.GetRequiredService<ToastHostViewModel>();
-
-            foreach (var d in displays.Secondaries())
-            {
-                var shell = factory.Create(d.Index);
-                var window = new MonitorWindow
-                {
-                    DataContext = shell,
-                    Left = d.X,
-                    Top = d.Y,
-                    Width = d.Width,
-                    Height = d.Height,
-                };
-                // Toast layer inside MonitorShellView binds the shared ToastHostViewModel; supply it.
-                // (Wired via the view's ToastHostView DataContext — see note below.)
-                _monitorWindows.Add(window);
-                window.Show();
-            }
-        }
-
-        public static void DisposeMonitors()
-        {
-            foreach (var w in _monitorWindows)
-            {
-                (w.DataContext as IDisposable)?.Dispose();
-                w.Close();
-            }
-            _monitorWindows.Clear();
-        }
-
         public static void PublishSharedResources(IServiceProvider services)
         {
             Application.Current.Resources["SharedToastHost"] =
@@ -181,13 +127,6 @@ namespace Wpf.Shell.Bench
             // Toasts: registers IToastService and ToastHostViewModel.
             services.AddToasts();
 
-            // Monitors: registers IMonitorService and any related VMs.
-
-            // Display topology: dev mock for now. Enum value is the secondary count.
-            services.AddSingleton<IDisplayService>(new MockDisplayService((int)DevDisplayTopology.FourScreens));
-
-            services.AddMonitor();
-
             // ---- Tab roots ----
             // Each AddTab<T>() registers T as a singleton AND emits a TabRegistration
             // metadata record. The navigation service consumes IEnumerable<TabRegistration>
@@ -196,7 +135,6 @@ namespace Wpf.Shell.Bench
             services.AddTab<TestRootViewModel>();
             services.AddTab<TestToastsRootViewModel>();
             services.AddTab<TestScalingRootViewModel>();
-            services.AddTab<TestMonitorRootViewModel>();
             // Additional AddTab<...>() calls go here as tabs are added.
 
             // ---- Detail VMs ----
@@ -204,9 +142,6 @@ namespace Wpf.Shell.Bench
             services.AddTransient<Test1ViewModel>();
             services.AddTransient<Test2ViewModel>();
             services.AddTransient<TestStressViewModel>();
-            services.AddTransient<StaticSnippetViewModel>();
-            services.AddTransient<PollingSnippetViewModel>();
-            services.AddTransient<ChartSnippetViewModel>();
 
             // ---- Shell cluster ----
             services.AddSingleton<ShellViewModel>();

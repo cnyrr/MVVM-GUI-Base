@@ -32,7 +32,6 @@ namespace Wpf.Shell.Bench
 
             Bootstrap.PublishSharedResources(_host.Services);
 
-            Bootstrap.ConfigureMonitors(_host.Services);
 
             MainWindow = Bootstrap.CreateMainWindow(_host.Services);
             MainWindow.Show();
@@ -40,8 +39,6 @@ namespace Wpf.Shell.Bench
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            Bootstrap.DisposeMonitors();
-
             if (_host is not null)
             {
                 await _host.StopAsync(TimeSpan.FromSeconds(5));
