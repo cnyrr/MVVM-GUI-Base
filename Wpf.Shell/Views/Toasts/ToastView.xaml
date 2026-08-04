@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="Wpf.Shell.Views.Toasts.ToastView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:contracts="clr-namespace:Wpf.Shell.Services.Toasts.Contracts"
+             mc:Ignorable="d"
+             d:DesignWidth="400"
+             Background="Transparent">
+
+    <Border x:Name="Root"
+            RenderTransformOrigin="0.5,0.5"
+            Opacity="0">
+
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="EntryTransform" X="40" />
+        </Border.RenderTransform>
+
+        <!-- Per-instance style: inherits from Style.Toast.Container, picks accent from Severity. -->
+        <Border.Style>
+            <Style TargetType="Border" BasedOn="{StaticResource Style.Toast.Container}">
+                <Setter Property="Tag" Value="{DynamicResource Brush.Status.Info}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Severity}"
+                                 Value="{x:Static contracts:ToastSeverity.Success}">
+                        <Setter Property="Tag" Value="{DynamicResource Brush.Status.Success}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Severity}"
+                                 Value="{x:Static contracts:ToastSeverity.Warning}">
+                        <Setter Property="Tag" Value="{DynamicResource Brush.Status.Warning}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Severity}"
+                                 Value="{x:Static contracts:ToastSeverity.Error}">
+                        <Setter Property="Tag" Value="{DynamicResource Brush.Status.Error}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Rectangle Grid.Column="0"
+                       Width="{DynamicResource Size.Toast.AccentBarWidth}"
+                       Fill="{Binding Tag, ElementName=Root}"
+                       VerticalAlignment="Stretch"
+                       RadiusX="2" RadiusY="2" />
+
+            <Ellipse Grid.Column="1"
+                     Width="{DynamicResource Size.Toast.IconSize}"
+                     Height="{DynamicResource Size.Toast.IconSize}"
+                     Fill="{Binding Tag, ElementName=Root}"
+                     VerticalAlignment="Center"
+                     Margin="12,12,0,12" />
+
+            <TextBlock Grid.Column="2"
+                       Text="{Binding Message}"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="12,12,12,12"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+
+            <Button Grid.Column="3"
+                    Style="{StaticResource Style.Button.ToastDismiss}"
+                    Margin="0,4,4,0"
+                    VerticalAlignment="Top"
+                    Command="{Binding DataContext.DismissToastCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}" />
+        </Grid>
+    </Border>
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Root"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1"
+                                     Duration="0:0:0.18" />
+                    <DoubleAnimation Storyboard.TargetName="EntryTransform"
+                                     Storyboard.TargetProperty="X"
+                                     From="40" To="0"
+                                     Duration="0:0:0.22">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut" />
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+</UserControl>

@@ -1,0 +1,176 @@
+﻿<UserControl x:Class="Wpf.Shell.Views.TestScaling.TestScalingRootView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Wpf.Shell.ViewModels.TestScaling"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:TestScalingRootViewModel}"
+             d:DesignHeight="1080" d:DesignWidth="1920"
+             Background="{DynamicResource Brush.Surface.Content}">
+
+    <!--
+        Scale test. Four regions, each revealing a distinct failure mode:
+          * Corner markers  — anchored to all four corners. If you can't see all four,
+                              content is being clipped at this aspect ratio.
+          * Star-sized grid — proportional bands (1* : 2* : 1*). They must keep their ratio
+                              as width changes; a collapsed band means star-sizing broke.
+          * Constrained block — clamps to Width.Content.Narrow (640 DIP). On wide screens it
+                              stays centered with visible gutters; on narrow screens it shrinks
+                              to fill. This is the core responsive behavior to verify.
+          * Live readout    — content-viewport size in DIPs (self-binding, no VM, no converter).
+    -->
+
+    <Grid>
+
+        <!-- ===== Diagnostic content ===== -->
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Header + live viewport readout -->
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="Scale Test"
+                           FontFamily="{DynamicResource FontFamily.Default}"
+                           FontSize="{DynamicResource FontSize.Title}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Content.Primary}" />
+
+                <TextBlock Margin="0,4,0,0"
+                    FontFamily="{DynamicResource FontFamily.Default}"
+                    FontSize="{DynamicResource FontSize.Body}"
+                    Foreground="{DynamicResource Brush.Content.Secondary}">
+                        <Run Text="Content viewport: " />
+                        <Run Text="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, StringFormat={}{0:0}}" />
+                        <Run Text=" × " />
+                        <Run Text="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, StringFormat={}{0:0}}" />
+                        <Run Text=" DIP" />
+                </TextBlock>
+
+                <Button Content="Open Stress Test page"
+        Command="{Binding GoToStressTestCommand}"
+        HorizontalAlignment="Left"
+        Padding="16,8"
+        Margin="0,16,0,0" />
+            </StackPanel>
+
+            <!-- Proportional star bands -->
+            <Grid Grid.Row="1" Margin="0,24,0,0" Height="80">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Margin="0,0,4,0"
+                        Background="{DynamicResource Brush.State.Selected}"
+                        BorderBrush="{DynamicResource Brush.Border.Default}"
+                        BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                        CornerRadius="{DynamicResource Radius.M}">
+                    <TextBlock Text="1*" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </Border>
+
+                <Border Grid.Column="1" Margin="4,0,4,0"
+                        Background="{DynamicResource Brush.State.Hover}"
+                        BorderBrush="{DynamicResource Brush.Border.Default}"
+                        BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                        CornerRadius="{DynamicResource Radius.M}">
+                    <TextBlock Text="2*" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </Border>
+
+                <Border Grid.Column="2" Margin="4,0,0,0"
+                        Background="{DynamicResource Brush.State.Selected}"
+                        BorderBrush="{DynamicResource Brush.Border.Default}"
+                        BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                        CornerRadius="{DynamicResource Radius.M}">
+                    <TextBlock Text="1*" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+                </Border>
+            </Grid>
+
+            <!-- Width-clamped block -->
+            <Border Grid.Row="2"
+                    Margin="0,24,0,0"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Center"
+                    MaxWidth="{DynamicResource Width.Content.Narrow}"
+                    Background="{DynamicResource Brush.Surface.Overlay}"
+                    BorderBrush="{DynamicResource Brush.Border.Default}"
+                    BorderThickness="{DynamicResource Thickness.Stroke.Hairline}"
+                    CornerRadius="{DynamicResource Radius.M}"
+                    Padding="24">
+                <StackPanel>
+                    <TextBlock Text="Constrained content (max 640 DIP)"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.Heading}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Content.Primary}" />
+
+                    <TextBlock Margin="0,12,0,0"
+                               TextWrapping="Wrap"
+                               FontFamily="{DynamicResource FontFamily.Default}"
+                               FontSize="{DynamicResource FontSize.BodyLarge}"
+                               Foreground="{DynamicResource Brush.Content.Secondary}"
+                               Text="On a wide window this block stays centered at 640 DIP with empty gutters either side — you should see the content surface behind it. On a narrow window (under ~640 plus margins) it shrinks to fill the available width and this paragraph reflows. If the gutters never appear on a wide screen, the MaxWidth clamp isn't engaging; if text is ever clipped instead of wrapping, the row height isn't distributing." />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ===== Corner markers (overlay, non-interactive) ===== -->
+        <Border Width="{DynamicResource Size.Touch.Default}" Height="{DynamicResource Size.Touch.Default}"
+                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4"
+                IsHitTestVisible="False"
+                Background="{DynamicResource Brush.Accent.Default}"
+                CornerRadius="{DynamicResource Radius.S}">
+            <TextBlock Text="TL" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Caption}"
+                       Foreground="{DynamicResource Brush.Content.OnAccent}" />
+        </Border>
+
+        <Border Width="{DynamicResource Size.Touch.Default}" Height="{DynamicResource Size.Touch.Default}"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                IsHitTestVisible="False"
+                Background="{DynamicResource Brush.Accent.Default}"
+                CornerRadius="{DynamicResource Radius.S}">
+            <TextBlock Text="TR" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Caption}"
+                       Foreground="{DynamicResource Brush.Content.OnAccent}" />
+        </Border>
+
+        <Border Width="{DynamicResource Size.Touch.Default}" Height="{DynamicResource Size.Touch.Default}"
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4"
+                IsHitTestVisible="False"
+                Background="{DynamicResource Brush.Accent.Default}"
+                CornerRadius="{DynamicResource Radius.S}">
+            <TextBlock Text="BL" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Caption}"
+                       Foreground="{DynamicResource Brush.Content.OnAccent}" />
+        </Border>
+
+        <Border Width="{DynamicResource Size.Touch.Default}" Height="{DynamicResource Size.Touch.Default}"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="4"
+                IsHitTestVisible="False"
+                Background="{DynamicResource Brush.Accent.Default}"
+                CornerRadius="{DynamicResource Radius.S}">
+            <TextBlock Text="BR" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.Caption}"
+                       Foreground="{DynamicResource Brush.Content.OnAccent}" />
+        </Border>
+
+    </Grid>
+</UserControl>

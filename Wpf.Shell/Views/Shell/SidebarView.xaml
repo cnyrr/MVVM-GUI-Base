@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="Wpf.Shell.Views.Shell.SidebarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Wpf.Shell.ViewModels.Shell"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SidebarViewModel}"
+             HorizontalAlignment="Left"
+             Width="{DynamicResource Size.Sidebar.Width}"
+             Background="{DynamicResource Brush.Surface.Sidebar}"
+             BorderBrush="{DynamicResource Brush.Border.Subtle}"
+             BorderThickness="0,0,1,0"
+             KeyboardNavigation.TabNavigation="Cycle"
+             FocusManager.IsFocusScope="True">
+
+    <!--
+        Sidebar panel. Owns its own styled root (width, background, border, focus scope).
+        Visibility is set by the parent (ShellView) — this view does not toggle itself.
+    -->
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Header. Reserves the corner the parent's hamburger button occupies. -->
+        <Border DockPanel.Dock="Top"
+                Height="{DynamicResource Size.Sidebar.HeaderHeight}"
+                BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                BorderThickness="0,0,0,1">
+            <TextBlock Text="Wpf.Shell"
+                       VerticalAlignment="Center"
+                       Margin="64,0,16,0"
+                       FontFamily="{DynamicResource FontFamily.Default}"
+                       FontSize="{DynamicResource FontSize.BodyLarge}"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Content.Primary}" />
+        </Border>
+
+        <!--
+            Tab list. ItemsControl over SidebarViewModel.Tabs (each item is a TabItemViewModel).
+            Per-instance Style.Button.SidebarTab inherits from the named style and adds
+            selected-state setters when DataTrigger on IsActive fires.
+        -->
+        <ItemsControl ItemsSource="{Binding Tabs}"
+                      Margin="8">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:TabItemViewModel}">
+                    <Button Command="{Binding DataContext.SwitchTabCommand,
+                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource Style.Button.SidebarTab}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource Brush.State.Selected}" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource Brush.Accent.Default}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="{Binding Label}" />
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+    </DockPanel>
+</UserControl>
