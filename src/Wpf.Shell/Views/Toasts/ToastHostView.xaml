@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="Wpf.Shell.Views.Toasts.ToastHostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             Background="{x:Null}"
+             IsHitTestVisible="True">
+
+    <!--
+        ToastHostView. The outer UserControl has no background (truly null,
+        not transparent) so it does not block clicks. The inner Grid is anchored
+        bottom-right and sized to content; only the rendered toasts inside it
+        catch input. MouseEnter/Leave on the inner Grid pauses/resumes timing
+        via Microsoft.Xaml.Behaviors.
+    -->
+    <Grid HorizontalAlignment="Right"
+          VerticalAlignment="Bottom"
+          Margin="{DynamicResource Thickness.ToastHost.Margin}"
+          Background="Transparent">
+
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseEnter">
+                <i:InvokeCommandAction Command="{Binding PauseCommand}" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseLeave">
+                <i:InvokeCommandAction Command="{Binding ResumeCommand}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+
+        <ItemsControl x:Name="ToastList"
+                      ItemsSource="{Binding VisibleToasts}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+    </Grid>
+</UserControl>

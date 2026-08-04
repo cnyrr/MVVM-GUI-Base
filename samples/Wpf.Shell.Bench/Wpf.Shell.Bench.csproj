@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<UseWPF>true</UseWPF>
+		<AssemblyName>Wpf.Shell.Bench</AssemblyName>
+		<RootNamespace>Wpf.Shell.Bench</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Wpf.Shell\Wpf.Shell.csproj" />
+	</ItemGroup>
+</Project>

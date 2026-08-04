@@ -1,0 +1,14 @@
+﻿<Window x:Class="Wpf.Shell.Views.Monitor.MonitorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:monitor_v="clr-namespace:Wpf.Shell.Views.Monitor"
+        Title="Monitor"
+        Width="900" Height="600"
+        Background="{DynamicResource Brush.Surface.Shell}"
+        FontFamily="{DynamicResource FontFamily.Default}"
+        FontSize="{DynamicResource FontSize.Body}"
+        Foreground="{DynamicResource Brush.Content.Primary}"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+    <monitor_v:MonitorShellView />
+</Window>

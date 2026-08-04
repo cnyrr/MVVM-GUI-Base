@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="samples/Wpf.Shell.Bench/Wpf.Shell.Bench.csproj" Id="dbeb336c-ce3c-4d2d-a71f-aade5bf0197b" />
+  <Project Path="src/Wpf.Shell/Wpf.Shell.csproj" />
+</Solution>

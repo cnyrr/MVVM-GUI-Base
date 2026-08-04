@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    
+                    xmlns:test_vm="clr-namespace:Wpf.Shell.Bench.ViewModels.Test"
+                    xmlns:test_v=      "clr-namespace:Wpf.Shell.Bench.Views.Test"
+                    
+                    xmlns:toast_test_vm="clr-namespace:Wpf.Shell.Bench.ViewModels.TestToasts"
+                    xmlns:toast_test_v=      "clr-namespace:Wpf.Shell.Bench.Views.TestToasts"
+                    
+                    xmlns:scale_test_vm="clr-namespace:Wpf.Shell.Bench.ViewModels.TestScaling"
+                    xmlns:scale_test_v=      "clr-namespace:Wpf.Shell.Bench.Views.TestScaling"
+                   >
+
+    <!--
+        VM → View mapping. WPF's ContentControl uses these implicit DataTemplates
+        to resolve a View whenever a ViewModel is set as Content. The DataType
+        match is by exact runtime type.
+
+        Add one DataTemplate per (root or detail) ViewModel as the app grows.
+    -->
+
+    <DataTemplate DataType="{x:Type test_vm:TestRootViewModel}">
+        <test_v:TestRootView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type test_vm:Test1ViewModel}">
+        <test_v:Test1View />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type test_vm:Test2ViewModel}">
+        <test_v:Test2View />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type toast_test_vm:TestToastsRootViewModel}">
+        <toast_test_v:TestToastsRootView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type scale_test_vm:TestScalingRootViewModel}">
+        <scale_test_v:TestScalingRootView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type scale_test_vm:TestStressViewModel}">
+        <scale_test_v:TestStressView />
+    </DataTemplate>
+
+</ResourceDictionary>
