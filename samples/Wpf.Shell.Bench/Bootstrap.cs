@@ -87,22 +87,8 @@ namespace Wpf.Shell.Bench
         public static Window CreateMainWindow(IServiceProvider services)
         {
             var shellVm = services.GetRequiredService<ShellViewModel>();
-            var primary = services.GetRequiredService<IDisplayService>().Primary();
 
             var window = new MainWindow { DataContext = shellVm };
-
-            if (primary.Windowed)
-            {
-                window.WindowState = WindowState.Normal;
-                window.Left = primary.X;
-                window.Top = primary.Y;
-                window.Width = primary.Width;
-                window.Height = primary.Height;
-            }
-            else
-            {
-                window.WindowState = WindowState.Maximized; // production: fullscreen on the touchscreen
-            }
 
             return window;
         }

@@ -18,10 +18,10 @@ namespace Wpf.Shell.Services.Theming.Internal
         // Pack URIs are used so the dictionaries resolve identically whether the
         // app is running loose or as a single packaged executable.
         private static readonly Uri LightUri =
-            new("pack://application:,,,/Themes/Light.xaml", UriKind.Absolute);
+            new("pack://application:,,,/Wpf.Shell;component/Themes/Light.xaml");
 
         private static readonly Uri DarkUri =
-            new("pack://application:,,,/Themes/Dark.xaml", UriKind.Absolute);
+            new("pack://application:,,,/Wpf.Shell;component/Themes/Dark.xaml");
 
         private ResourceDictionary? _activeThemeDictionary;
 

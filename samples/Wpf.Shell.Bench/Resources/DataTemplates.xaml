@@ -9,10 +9,7 @@
                     
                     xmlns:scale_test_vm="clr-namespace:Wpf.Shell.Bench.ViewModels.TestScaling"
                     xmlns:scale_test_v=      "clr-namespace:Wpf.Shell.Bench.Views.TestScaling"
-                    
-                    xmlns:mon_test_vm="clr-namespace:Wpf.Shell.Bench.ViewModels.TestMonitor"
-                    xmlns:mon_test_v=      "clr-namespace:Wpf.Shell.Bench.Views.TestMonitor"
-                    >
+                   >
 
     <!--
         VM → View mapping. WPF's ContentControl uses these implicit DataTemplates
@@ -44,22 +41,6 @@
 
     <DataTemplate DataType="{x:Type scale_test_vm:TestStressViewModel}">
         <scale_test_v:TestStressView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type mon_test_vm:TestMonitorRootViewModel}">
-        <mon_test_v:TestMonitorRootView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type mon_test_vm:StaticSnippetViewModel}">
-        <mon_test_v:StaticSnippetView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type mon_test_vm:PollingSnippetViewModel}">
-        <mon_test_v:PollingSnippetView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type mon_test_vm:ChartSnippetViewModel}">
-        <mon_test_v:ChartSnippetView />
     </DataTemplate>
 
 </ResourceDictionary>

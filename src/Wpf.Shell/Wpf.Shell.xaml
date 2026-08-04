@@ -1,0 +1,43 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    
+                    xmlns:toast_vm="clr-namespace:Wpf.Shell.ViewModels.Toasts"
+                    xmlns:toast_v      ="clr-namespace:Wpf.Shell.Views.Toasts"
+                    >
+
+    <!--
+        Framework entry dictionary. The single resource seam consumers merge.
+
+        Consumers merge exactly this one URI:
+            pack://application:,,,/Wpf.Shell;component/Wpf.Shell.xaml
+        and must merge it FIRST, before their own dictionaries, so app-level
+        keys override framework defaults.
+
+        The internal composition below is framework-owned and may change without
+        notice — consumers must not reference these files directly.
+
+        Merge order:
+          1. Sizing    — theme-independent dimensional tokens.
+          2. Tokens    — theme-token KEY declarations (Light values as baseline,
+                         so the designer is never magenta).
+          3. Components— control styles; reference 1 and 2 via DynamicResource.
+          4. Templates — framework VM ↔ View mappings.
+
+        The active theme dictionary is NOT merged here. ITheming appends it to
+        Application.Resources at runtime, where it lands after this dictionary
+        and therefore overrides the token baseline.
+    -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Sizing.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Tokens.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Components/Buttons.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Components/Toasts.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ===== Framework VM ↔ View mappings ===== -->
+    <DataTemplate DataType="{x:Type toast_vm:ToastViewModel}">
+        <toast_v:ToastView />
+    </DataTemplate>
+
+
+</ResourceDictionary>
