@@ -30,6 +30,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Sizing.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Tokens.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Light.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Components/Buttons.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Wpf.Shell;component/Themes/Components/Toasts.xaml" />
     </ResourceDictionary.MergedDictionaries>

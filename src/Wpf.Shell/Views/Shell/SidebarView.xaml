@@ -26,7 +26,7 @@
                 Height="{DynamicResource Size.Sidebar.HeaderHeight}"
                 BorderBrush="{DynamicResource Brush.Border.Subtle}"
                 BorderThickness="0,0,0,1">
-            <TextBlock Text="Wpf.Shell"
+            <TextBlock Text="GUI Base"
                        VerticalAlignment="Center"
                        Margin="64,0,16,0"
                        FontFamily="{DynamicResource FontFamily.Default}"
