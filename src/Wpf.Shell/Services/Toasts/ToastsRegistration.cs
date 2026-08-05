@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Wpf.Shell.Services.Toasts.Contracts;
 using Wpf.Shell.Services.Toasts.Internal;
+using Wpf.Shell.ViewModels.Toasts.Internal;
 
 namespace Wpf.Shell.Services.Toasts
 {
