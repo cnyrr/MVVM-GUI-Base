@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using Wpf.Shell.Services.Navigation.Contracts;
 
 namespace Wpf.Shell.Services.Navigation.Internal
@@ -57,13 +57,6 @@ namespace Wpf.Shell.Services.Navigation.Internal
         /// True if there is at least one frame ahead of the current index in the active tab's history.
         /// </summary>
         bool CanGoForward { get; }
-
-        /// <summary>
-        /// Raised when a frame's ViewModel is permanently discarded (after its full teardown sequence).
-        /// Re-raised by the facade for external per-instance caches. Fired last in the discard sequence,
-        /// so listeners observe a fully-dead instance.
-        /// </summary>
-        event EventHandler<ObservableObject>? ViewModelDiscarded;
 
         // ===== Setup =====
 

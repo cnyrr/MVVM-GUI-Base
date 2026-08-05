@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Navigation.Contracts
+﻿namespace Wpf.Shell.Services.Navigation.Contracts
 {
     /// <summary>
     /// Sentinel parameter type for ViewModels that do not require navigation parameters.

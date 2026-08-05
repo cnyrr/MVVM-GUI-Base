@@ -7,7 +7,7 @@ namespace Wpf.Shell.Services.Theming
     /// <summary>
     /// DI registration for the theming subsystem.
     /// </summary>
-    public static class ThemingRegistration
+    internal static class ThemingRegistration
     {
         /// <summary>
         /// Registers <see cref="ITheming"/> as a singleton. The initial theme is

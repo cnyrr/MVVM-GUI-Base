@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Navigation.Contracts
+﻿namespace Wpf.Shell.Services.Navigation.Contracts
 {
     /// <summary>
     /// Contextual information passed to a ViewModel's <c>OnNavigatedToAsync</c> hook.

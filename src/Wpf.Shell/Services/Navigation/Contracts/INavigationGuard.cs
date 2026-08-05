@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Navigation.Contracts
+﻿namespace Wpf.Shell.Services.Navigation.Contracts
 {
     /// <summary>
     /// Optional interface for ViewModels that need to control whether the user is allowed to

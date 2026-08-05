@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Wpf.Shell.Services.Navigation.Contracts;
 
 namespace Wpf.Shell.Services.Navigation.Internal
@@ -31,7 +31,6 @@ namespace Wpf.Shell.Services.Navigation.Internal
         {
             _service = service;
             _service.PropertyChanged += OnServicePropertyChanged;
-            _service.ViewModelDiscarded += OnServiceViewModelDiscarded;
         }
 
         // ===== State (forwarded from service) =====
@@ -41,8 +40,6 @@ namespace Wpf.Shell.Services.Navigation.Internal
         public IEnumerable<IRootViewModel> Tabs => _service.Tabs;
         public bool CanGoBack => _service.CanGoBack;
         public bool CanGoForward => _service.CanGoForward;
-
-        public event EventHandler<ObservableObject>? ViewModelDiscarded;
 
         // ===== Operations =====
 
@@ -165,13 +162,5 @@ namespace Wpf.Shell.Services.Navigation.Internal
                 Application.Current.Dispatcher.CheckAccess(),
                 "Navigation methods must be called on the UI thread.");
         }
-
-        /// <summary>
-        /// Re-raises the service's permanent-discard event immediately. Deliberately bypasses the
-        /// batch-suppression machinery used for property changes — discard is a resource-lifetime signal,
-        /// not a visual update, and must not be deferred to batch close.
-        /// </summary>
-        private void OnServiceViewModelDiscarded(object? sender, ObservableObject vm)
-            => ViewModelDiscarded?.Invoke(this, vm);
     }
 }

@@ -1,7 +1,6 @@
-﻿using Wpf.Shell.Services.Toasts.Contracts;
+﻿using System.Windows;
+using Wpf.Shell.Services.Toasts.Contracts;
 using Wpf.Shell.ViewModels.Toasts;
-using System;
-using System.Windows;
 
 namespace Wpf.Shell.Services.Toasts.Internal
 {

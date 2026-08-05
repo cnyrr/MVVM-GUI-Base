@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Navigation.Internal
+﻿namespace Wpf.Shell.Services.Navigation.Internal
 {
     /// <summary>
     /// A read-only snapshot of the next forward frame in the active tab's history.

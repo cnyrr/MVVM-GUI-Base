@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Wpf.Shell.Services;
 using Wpf.Shell.Services.Navigation.Contracts;
 
 namespace Wpf.Shell.Services.Navigation.Internal
@@ -93,8 +91,6 @@ namespace Wpf.Shell.Services.Navigation.Internal
 
         public bool CanGoForward
             => _activeTab is not null && _tabs[_activeTab.GetType()].CanGoForward;
-
-        public event EventHandler<ObservableObject>? ViewModelDiscarded;
 
         // ===== Operations =====
 
@@ -390,7 +386,7 @@ namespace Wpf.Shell.Services.Navigation.Internal
                 return;
 
             var method = awareType.GetMethod(nameof(INavigationAware<object>.OnNavigatedToAsync))!;
-            var task = (Task)method.Invoke(vm, new[] { parameters, context, (object)frame.Cts.Token })!;
+            var task = (Task)method.Invoke(vm, new[] { parameters, context, frame.Cts.Token })!;
             await task;
         }
 
@@ -453,11 +449,6 @@ namespace Wpf.Shell.Services.Navigation.Internal
             try
             { frame.Cts.Dispose(); }
             catch { /* defensive */ }
-
-            // ViewModel is now fully torn down and unreachable in history. Publish the permanent-discard
-            // fact for external per-instance caches (monitor snippet caches). Fired last so listeners
-            // observe a dead instance.
-            ViewModelDiscarded?.Invoke(this, frame.ViewModel);
         }
 
         // ===== Per-tab history =====

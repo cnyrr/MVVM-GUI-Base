@@ -1,13 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.Windows.Threading;
 using Wpf.Shell.ViewModels;
 using Wpf.Shell.ViewModels.Toasts;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Windows.Threading;
 
 namespace Wpf.Shell.Services.Toasts.Internal
 {

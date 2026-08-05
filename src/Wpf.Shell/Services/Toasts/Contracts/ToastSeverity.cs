@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Toasts.Contracts
+﻿namespace Wpf.Shell.Services.Toasts.Contracts
 {
     /// <summary>
     /// Toast severity level. Determines accent color, default behavior

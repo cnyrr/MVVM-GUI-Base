@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Wpf.Shell.Services;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Navigation.Internal;
 using Wpf.Shell.ViewModels;
@@ -12,7 +11,7 @@ namespace Wpf.Shell.Services.Navigation
     /// the facade, and the ViewModel factory. Then call <see cref="AddTab{TRoot}"/> once per tab
     /// to register its root ViewModel.
     /// </summary>
-    public static class NavigationRegistration
+    internal static class NavigationRegistration
     {
         /// <summary>
         /// Registers the navigation framework's core services as singletons.

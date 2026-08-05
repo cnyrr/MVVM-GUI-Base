@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Theming.Contracts
+﻿namespace Wpf.Shell.Services.Theming.Contracts
 {
     /// <summary>
     /// Identifies a theme. Each value corresponds to one resource dictionary under

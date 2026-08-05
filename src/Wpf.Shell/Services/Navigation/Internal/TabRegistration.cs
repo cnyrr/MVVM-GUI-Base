@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Navigation.Internal
+﻿namespace Wpf.Shell.Services.Navigation.Internal
 {
     /// <summary>
     /// Metadata seed for a single tab. One <see cref="TabRegistration"/> is added to the DI

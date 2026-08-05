@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using Wpf.Shell.Services.Navigation.Contracts;
 
 namespace Wpf.Shell.ViewModels.Shell

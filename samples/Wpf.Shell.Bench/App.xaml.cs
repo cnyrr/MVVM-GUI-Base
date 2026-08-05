@@ -21,9 +21,6 @@ namespace Wpf.Shell.Bench
 
             await Bootstrap.ConfigureNavigationAsync(_host.Services);
 
-            Bootstrap.PublishSharedResources(_host.Services);
-
-
             MainWindow = Bootstrap.CreateMainWindow(_host.Services);
             MainWindow.Show();
         }

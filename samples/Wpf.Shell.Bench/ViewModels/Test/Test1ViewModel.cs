@@ -3,9 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Wpf.Shell.Bench.ViewModels.Test
 {

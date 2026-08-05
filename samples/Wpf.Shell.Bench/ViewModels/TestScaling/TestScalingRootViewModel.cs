@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
-using Wpf.Shell.Bench.ViewModels.TestScaling;
 using Wpf.Shell.ViewModels;
 
 namespace Wpf.Shell.Bench.ViewModels.TestScaling

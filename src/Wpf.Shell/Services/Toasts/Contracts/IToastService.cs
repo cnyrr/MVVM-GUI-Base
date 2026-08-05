@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wpf.Shell.Services.Toasts.Contracts
+﻿namespace Wpf.Shell.Services.Toasts.Contracts
 {
     /// <summary>
     /// Application-level service for surfacing transient notifications (toasts).

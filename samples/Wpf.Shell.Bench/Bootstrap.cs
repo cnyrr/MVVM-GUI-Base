@@ -1,17 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Windows;
+using Wpf.Shell.Bench.ViewModels.Test;
+using Wpf.Shell.Bench.ViewModels.TestScaling;
+using Wpf.Shell.Bench.ViewModels.TestToasts;
 using Wpf.Shell.Services.Navigation;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Navigation.Internal;
 using Wpf.Shell.Services.Theming;
 using Wpf.Shell.Services.Theming.Contracts;
 using Wpf.Shell.Services.Toasts;
-using Wpf.Shell.Services.Toasts.Internal;
 using Wpf.Shell.ViewModels.Shell;
-using Wpf.Shell.Bench.ViewModels.Test;
-using Wpf.Shell.Bench.ViewModels.TestScaling;
-using Wpf.Shell.Bench.ViewModels.TestToasts;
-using System.Windows;
 
 namespace Wpf.Shell.Bench
 {
@@ -90,12 +89,6 @@ namespace Wpf.Shell.Bench
             var window = new MainWindow { DataContext = shellVm };
 
             return window;
-        }
-
-        public static void PublishSharedResources(IServiceProvider services)
-        {
-            Application.Current.Resources["SharedToastHost"] =
-                services.GetRequiredService<ToastHostViewModel>();
         }
 
         // ----- private helpers -----
