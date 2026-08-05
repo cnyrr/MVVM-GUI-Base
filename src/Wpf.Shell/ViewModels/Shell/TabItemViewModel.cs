@@ -11,7 +11,7 @@ namespace Wpf.Shell.ViewModels.Shell
     /// — pure-data leaf VMs are exempt from the universal-base rule per the project's design
     /// decision. There is no behavior to log; logging dependency would be busywork.
     /// </summary>
-    public sealed partial class TabItemViewModel : ObservableObject
+    internal sealed partial class TabItemViewModel : ObservableObject
     {
         public TabItemViewModel(IRootViewModel root)
         {

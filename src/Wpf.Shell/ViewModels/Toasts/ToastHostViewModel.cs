@@ -3,9 +3,9 @@ using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using Wpf.Shell.ViewModels;
-using Wpf.Shell.ViewModels.Toasts;
+using Wpf.Shell.Services.Toasts.Internal;
 
-namespace Wpf.Shell.Services.Toasts.Internal
+namespace Wpf.Shell.ViewModels.Toasts.Internal
 {
     /// <summary>
     /// Owns the visible toast collection, the overflow queue, and all timing
@@ -16,7 +16,7 @@ namespace Wpf.Shell.Services.Toasts.Internal
     /// Threading: this class is UI-thread-only. <see cref="ToastService"/>
     /// marshals incoming requests before invoking <see cref="Enqueue"/>.
     /// </remarks>
-    public sealed partial class ToastHostViewModel : ViewModelBase
+    internal sealed partial class ToastHostViewModel : ViewModelBase
     {
         private const int VisibleCap = 3;
         private static readonly TimeSpan TickInterval = TimeSpan.FromMilliseconds(100);

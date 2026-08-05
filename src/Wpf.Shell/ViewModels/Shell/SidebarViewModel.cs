@@ -20,7 +20,7 @@ namespace Wpf.Shell.ViewModels.Shell
     /// cleanly compare two bindings — the converter pattern was rejected as bloat. The
     /// denormalization is N flags for N tabs, refreshed on every active-tab change.
     /// </summary>
-    public sealed partial class SidebarViewModel : ViewModelBase
+    internal sealed partial class SidebarViewModel : ViewModelBase
     {
         private readonly INavigationFacade _nav;
 

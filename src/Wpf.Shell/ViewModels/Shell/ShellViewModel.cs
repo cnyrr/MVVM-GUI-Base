@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using Wpf.Shell.Services.Navigation.Contracts;
-using Wpf.Shell.Services.Toasts.Internal;
+using Wpf.Shell.ViewModels.Toasts.Internal;
 
 namespace Wpf.Shell.ViewModels.Shell
 {
@@ -18,7 +18,7 @@ namespace Wpf.Shell.ViewModels.Shell
     /// than paired with a click: any tab switch — whether initiated by the sidebar or
     /// programmatically — leaves the user looking at the new content unobstructed.
     /// </summary>
-    public sealed partial class ShellViewModel : ViewModelBase
+    internal sealed partial class ShellViewModel : ViewModelBase
     {
         private readonly INavigationFacade _nav;
         private readonly SidebarViewModel _sidebar;

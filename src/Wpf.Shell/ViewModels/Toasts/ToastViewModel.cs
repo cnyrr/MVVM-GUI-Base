@@ -2,13 +2,13 @@
 using Wpf.Shell.Services.Toasts.Contracts;
 using Wpf.Shell.Services.Toasts.Internal;
 
-namespace Wpf.Shell.ViewModels.Toasts
+namespace Wpf.Shell.ViewModels.Toasts.Internal
 {
     /// <summary>
     /// A single toast. Pure data — no timer, no state machine. The host
     /// (<see cref="ToastHostViewModel"/>) owns expiration, dismissal, and pause.
     /// </summary>
-    public sealed partial class ToastViewModel : ObservableObject
+    internal sealed partial class ToastViewModel : ObservableObject
     {
         public ToastViewModel(string message, ToastSeverity severity, bool isSticky)
         {
