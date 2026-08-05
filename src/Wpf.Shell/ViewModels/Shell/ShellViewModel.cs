@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Wpf.Shell.Services.Navigation.Contracts;
+using Wpf.Shell.Services.Toasts.Internal;
 
 namespace Wpf.Shell.ViewModels.Shell
 {
@@ -21,15 +22,18 @@ namespace Wpf.Shell.ViewModels.Shell
     {
         private readonly INavigationFacade _nav;
         private readonly SidebarViewModel _sidebar;
+        private readonly ToastHostViewModel _toastHost;
 
         public ShellViewModel(
             INavigationFacade nav,
             SidebarViewModel sidebar,
+            ToastHostViewModel toastHost,
             ILogger<ShellViewModel> logger)
             : base(logger)
         {
             _nav = nav;
             _sidebar = sidebar;
+            _toastHost = toastHost;
 
             _nav.PropertyChanged += OnNavigationPropertyChanged;
         }
@@ -49,6 +53,12 @@ namespace Wpf.Shell.ViewModels.Shell
         /// the shell view's sidebar layer.
         /// </summary>
         public SidebarViewModel Sidebar => _sidebar;
+
+        /// <summary>   
+        /// Toast host VM. Owns the toast queue and the toast display logic. Bound by the shell view's
+        /// toast layer.
+        /// </summary>
+        public ToastHostViewModel ToastHost => _toastHost;
 
         // ===== Shell-only state =====
 

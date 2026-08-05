@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Wpf.Shell.Services.Display.Contracts;
 using Wpf.Shell.Services.Navigation;
 using Wpf.Shell.Services.Navigation.Contracts;
 using Wpf.Shell.Services.Navigation.Internal;
