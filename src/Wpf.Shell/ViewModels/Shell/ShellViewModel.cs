@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using Wpf.Shell.Services.Navigation.Contracts;
-using Wpf.Shell.ViewModels.Toasts.Internal;
+using Wpf.Shell.ViewModels.Toasts;
 
 namespace Wpf.Shell.ViewModels.Shell
 {

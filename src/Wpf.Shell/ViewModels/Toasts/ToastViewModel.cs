@@ -1,8 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Wpf.Shell.Services.Toasts.Contracts;
-using Wpf.Shell.Services.Toasts.Internal;
 
-namespace Wpf.Shell.ViewModels.Toasts.Internal
+namespace Wpf.Shell.ViewModels.Toasts
 {
     /// <summary>
     /// A single toast. Pure data — no timer, no state machine. The host

@@ -5,7 +5,7 @@ using System.Windows.Threading;
 using Wpf.Shell.ViewModels;
 using Wpf.Shell.Services.Toasts.Internal;
 
-namespace Wpf.Shell.ViewModels.Toasts.Internal
+namespace Wpf.Shell.ViewModels.Toasts
 {
     /// <summary>
     /// Owns the visible toast collection, the overflow queue, and all timing
