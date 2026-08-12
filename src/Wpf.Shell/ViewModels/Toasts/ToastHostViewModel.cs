@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
-using Wpf.Shell.ViewModels;
 using Wpf.Shell.Services.Toasts.Internal;
 
 namespace Wpf.Shell.ViewModels.Toasts
