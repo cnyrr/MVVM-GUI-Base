@@ -27,7 +27,7 @@ namespace Wpf.Shell.Services.Navigation.Internal
         private bool _initialized;
 
         public NavigationService(
-            IViewModelFactory factory
+            IViewModelFactory factory)
         {
             _factory = factory;
             // Tab roots are not known here, by construction. They arrive at InitializeTabs(),

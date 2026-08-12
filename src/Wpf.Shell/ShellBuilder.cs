@@ -56,13 +56,6 @@ namespace Wpf.Shell
         private bool _built;
 
         /// <summary>
-        /// Set when <see cref="Build"/> falls back to the framework's default window because the
-        /// consumer never called <see cref="WithMainWindow{TWindow}"/>. Drained to the log once
-        /// the host — and therefore the logging pipeline — exists.
-        /// </summary>
-        private bool _usedDefaultMainWindow;
-
-        /// <summary>
         /// Creates a builder over an existing <see cref="HostApplicationBuilder"/>.
         /// </summary>
         /// 
@@ -241,11 +234,8 @@ namespace Wpf.Shell
                     $"WithInitialTab<{_initialTabType.Name}>().");
 
             if (_mainWindowFactory is null)
-            {
-                // Not fatal yet. Recorded now, logged once the host exists.
-                _mainWindowFactory = static () => new ShellWindow();
-                _usedDefaultMainWindow = true;
-            }
+                throw new InvalidOperationException(
+                    "No main window declared. Call WithMainWindow<TWindow>() before Build().");
         }
 
         /// <summary>
