@@ -22,43 +22,35 @@ namespace Wpf.Shell.Services.Navigation.Internal
     {
         private readonly IViewModelFactory _factory;
         private readonly Dictionary<Type, TabHistory> _tabs = new();
-        private readonly IEnumerable<TabRegistration> _registrations;
 
         private IRootViewModel? _activeTab;
         private bool _initialized;
 
         public NavigationService(
-            IViewModelFactory factory,
-            IEnumerable<TabRegistration> registrations)
+            IViewModelFactory factory
         {
             _factory = factory;
-            _registrations = registrations;
-            // Root construction is deferred to InitializeTabs(). Resolving roots here would
-            // recurse into DI mid-construction of INavigationFacade — roots take INavigationFacade
-            // as a dependency, and INavigationFacade is currently being built (it's why this
-            // ctor is running). The container handles that recursion by spinning up additional
-            // facade instances rather than failing fast, which manifests as repeated root ctor
-            // calls and an eventually-broken graph. Bootstrap calls InitializeTabs() after
-            // BuildHostAsync returns — past the point where the construction cycle can happen.
+            // Tab roots are not known here, by construction. They arrive at InitializeTabs(),
+            // called by ShellBuilder after the host is built — past the window in which resolving
+            // a root would recurse into the facade's own construction graph.
         }
 
-        public void InitializeTabs()
+        public void InitializeTabs(IReadOnlyList<TabRegistration> registrations)
         {
             if (_initialized)
                 throw new InvalidOperationException(
                     "InitializeTabs() has already been called.");
             _initialized = true;
 
-            // One pass through the registrations in DI order; resolve each root via the factory
-            // and wrap it in a TabHistory. The factory is the single seam to DI — direct
-            // IServiceProvider access is forbidden in the navigation framework. Roots are
-            // singletons in DI, so the factory returns the canonical instances.
+            // One pass in list order; resolve each root via the factory and wrap it in a
+            // TabHistory. The factory is the single seam to DI — direct IServiceProvider access is
+            // forbidden in the navigation framework. Roots are singletons, so the factory returns
+            // the canonical instances.
             //
-            // Tab order: Microsoft.Extensions.DependencyInjection preserves singleton registration
-            // order for the same service type, and Dictionary<,> preserves insertion order in
-            // modern .NET. The sidebar reads Tabs.Values directly. If a future runtime ever
-            // breaks dictionary insertion order, a separate ordered list becomes warranted.
-            foreach (var registration in _registrations)
+            // Tab order comes from the builder's list, not from container enumeration. The
+            // duplicate check below is a backstop; ShellBuilder.AddTab already rejects duplicates
+            // at the registration line.
+            foreach (var registration in registrations)
             {
                 if (_tabs.ContainsKey(registration.RootViewModelType))
                     throw new InvalidOperationException(

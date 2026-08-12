@@ -61,19 +61,21 @@ namespace Wpf.Shell.Services.Navigation.Internal
         // ===== Setup =====
 
         /// <summary>
-        /// Resolves every registered tab root and builds the per-tab history dictionary. Must be
-        /// called once, by Bootstrap, after the DI host has been built and before any code touches
-        /// <see cref="Tabs"/>, <see cref="SwitchTabAsync"/>, or any consumer of those.
+        /// Resolves every tab root in <paramref name="registrations"/> and builds the per-tab
+        /// history dictionary. Called once, by <see cref="Wpf.Shell.ShellBuilder"/>, after the DI
+        /// host has been built and before anything touches <see cref="Tabs"/>,
+        /// <see cref="SwitchTabAsync"/>, or any consumer of those.
         ///
-        /// Deferred out of the constructor because roots typically take
-        /// <see cref="INavigationFacade"/> as a dependency; resolving them during the service's
-        /// own construction causes the container to re-enter the facade's construction graph,
-        /// producing an undetected cycle with broken state. Calling this after BuildHostAsync
-        /// returns sidesteps the cycle.
+        /// Roots arrive here rather than at construction because they typically depend on
+        /// <see cref="Contracts.INavigationFacade"/>; resolving them while this service is itself
+        /// being constructed re-enters the facade's construction graph and produces an undetected
+        /// cycle with broken state. Taking the registrations as a parameter makes that mistake
+        /// unavailable — at construction time the service does not yet know what the tabs are.
         ///
         /// Throws if called more than once.
         /// </summary>
-        void InitializeTabs();
+        /// <param name="registrations">Tab roots in sidebar order.</param>
+        void InitializeTabs(IReadOnlyList<TabRegistration> registrations);
 
         // ===== Operations =====
 
